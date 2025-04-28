@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>영문명 정리</title>
+    <style>
+        /* CSS 스타일 (이전과 동일) */
+        body { font-family: sans-serif; line-height: 1.6; padding: 20px; max-width: 800px; margin: 0 auto; }
+        h1, h2 { border-bottom: 1px solid #ccc; padding-bottom: 5px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        textarea { width: 98%; min-height: 200px; margin-bottom: 15px; padding: 10px; border: 1px solid #ccc; font-size: 1rem; resize: vertical; }
+        button { padding: 10px 20px; font-size: 1rem; cursor: pointer; background-color: #007bff; color: white; border: none; border-radius: 4px; margin-bottom: 20px; margin-right: 10px; }
+        button:hover { background-color: #0056b3; }
+        button:disabled { background-color: #cccccc; cursor: not-allowed; }
+        #outputTable { width: 100%; border-collapse: collapse; margin-top: 10px; border: 1px solid #ccc; }
+        #outputTable th, #outputTable td { border: 1px solid #ddd; padding: 8px; text-align: left; vertical-align: top; }
+        #outputTable th { background-color: #f2f2f2; font-weight: bold; cursor: default; }
+        #outputTable th:first-child, #outputTable td:first-child { text-align: center; width: 40px; }
+        #outputTable tbody tr:nth-child(even) { background-color: #f9f9f9; }
+        #outputTable tbody td { cursor: cell; }
+        #outputTable tbody td.selected-cell { background-color: #d0e0ff !important; }
+        body.is-selecting, body.is-selecting * { -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
+        .instructions { background-color: #eef; padding: 10px; border-radius: 5px; margin-bottom: 15px; font-size: 0.9em; }
+        .error-message { color: red; font-weight: bold; }
+        .empty-message { color: grey; font-style: italic; cursor: default !important; -webkit-user-select: text; -moz-user-select: text; -ms-user-select: text; user-select: text; }
+        .copy-feedback { margin-left: 10px; color: green; font-weight: bold; display: inline-block;}
+    </style>
+</head>
+<body>
+    <h1>영문명 정리</h1>
+    <div class="instructions">
+        <p>아래 입력란에 PNR 영문명을 넣고 '처리하기' 버튼을 클릭하세요.<br>
+        결과 표의 셀들을 마우스로 드래그하여 영역을 선택한 후, '선택 영역 복사' 버튼 또는 Ctrl+C로 복사할 수 있습니다.</p>
+    </div>
+    <label for="pnrInput">PNR 입력:</label>
+    <textarea id="pnrInput" placeholder="여기에 PNR 문자열을 입력하세요..."></textarea>
+    <button id="parseButton">처리하기</button>
+    <button id="copySelectionButton" disabled>선택 영역 복사</button>
+    <button id="copyAllButton" disabled>전체 결과 복사</button>
+    <span id="copyFeedback" class="copy-feedback"></span>
+
+    <h2>출력 결과</h2>
+    <table id="outputTable">
+        <thead>
+            <tr> <th>번호</th> <th>영문 성</th> <th>영문 이름</th> <th>생년월일</th> <th>성별</th> </tr>
+        </thead>
+        <tbody id="outputTableBody">
+            <tr> <td colspan="5" class="empty-message">(아직 처리되지 않았습니다)</td> </tr>
+        </tbody>
+    </table>
+
+    <script>
+        // --- 전역 변수 및 요소 참조 ---
+        const pnrInput = document.getElementById('pnrInput');
+        const parseButton = document.getElementById('parseButton');
+        const outputTableBody = document.getElementById('outputTableBody');
+        const copySelectionButton = document.getElementById('copySelectionButton');
+        const copyAllButton = document.getElementById('copyAllButton');
+        const copyFeedback = document.getElementById('copyFeedback');
+        const outputTable = document.getElementById('outputTable');
+
+        let currentResults = [];
+        let isSelecting = false;
+        let startCell = null;
+        let selectionBounds = null; // 선택 영역 경계 저장
+
+        // --- 기본 이벤트 리스너 ---
+        parseButton.addEventListener('click', handleParse);
+        copyAllButton.addEventListener('click', handleTableCopy);
+        copySelectionButton.addEventListener('click', handleSelectionCopy);
+
+        // --- 드래그 선택 이벤트 리스너 ---
+        outputTableBody.addEventListener('mousedown', handleMouseDown);
+        outputTable.addEventListener('mouseover', handleMouseOver);
+        document.addEventListener('mouseup', handleMouseUp);
+
+        // --- [다시 추가] 복사 이벤트 리스너 ---
+        document.addEventListener('copy', handleNativeCopy);
+
+        // --- 함수 정의 ---
+        function handleParse() { /* 변경 없음 - 이전 롤백 버전과 동일 */ const rawPnr = pnrInput.value.trim().replace(/\u00A0/g, ' '); outputTableBody.innerHTML = ''; currentResults = []; copyAllButton.disabled = true; copySelectionButton.disabled = true; copyFeedback.textContent = ''; selectionBounds = null; const displayInitialMessage = (message) => { const row = outputTableBody.insertRow(); const cell = row.insertCell(); cell.colSpan = 5; cell.textContent = message; cell.classList.add('empty-message'); }; if (!rawPnr) { displayInitialMessage("(입력된 PNR 문자열이 없습니다.)"); return; } try { const passengerDataArray = parsePnrString(rawPnr); currentResults = passengerDataArray; if (passengerDataArray.length === 0) { displayInitialMessage("(처리할 승객 정보가 없습니다.)"); } else { passengerDataArray.forEach((passengerData, index) => { const row = outputTableBody.insertRow(); const numCell = row.insertCell(0); numCell.textContent = index + 1; passengerData.forEach(fieldData => { const cell = row.insertCell(); cell.textContent = fieldData; }); }); copyAllButton.disabled = false; } } catch (error) { console.error("PNR 처리 중 오류 발생:", error); const row = outputTableBody.insertRow(); const cell = row.insertCell(); cell.colSpan = 5; cell.textContent = `(오류 발생: ${error.message})`; cell.classList.add('error-message'); copyAllButton.disabled = true; copySelectionButton.disabled = true;} }
+        function parsePnrString(pnrText) { /* 변경 없음 - 이전 롤백 버전과 동일 */ const results = []; const monthMap = { JAN: '01', FEB: '02', MAR: '03', APR: '04', MAY: '05', JUN: '06', JUL: '07', AUG: '08', SEP: '09', OCT: '10', NOV: '11', DEC: '12' }; const entries = pnrText.split(/(?=\s*\d+\.(?:\d+\s)?|\s*I\/\d+\s)/).map(s => s.trim()).filter(Boolean); entries.forEach((entry) => { let passengerDataString = entry.replace(/^(\d+\.(?:\d+\s)?|I\/\d+\s)/, '').trim(); if (!passengerDataString) return; processPassengerData(passengerDataString, results, monthMap); }); return results; }
+        function processPassengerData(data, results, monthMap) { /* 변경 없음 - 이전 롤백 버전과 동일 (v3 - indexOf+substring) */ let lastName = '', firstName = '', dob = '', gender = '', title = ''; let infantInfo = null; const infantRegex = /\((INF[A-Z]+\/[A-Z\s]+?\s+[A-Z]+\/\d{2}[A-Z]{3}\d{2})\)/; const infantMatch = data.match(infantRegex); if (infantMatch) { const infantDataString = infantMatch[1]; data = data.replace(infantMatch[0], '').trim(); const infantParts = infantDataString.match(/INF([A-Z]+)\/([A-Z\s]+?)\s+([A-Z]+)\/(\d{2}[A-Z]{3}\d{2})/); if (infantParts) { infantInfo = { lastName: infantParts[1], firstName: infantParts[2].trim().replace(/[-\s]/g, ''), dob: convertDate(infantParts[4], monthMap), gender: getGender(infantParts[3]) }; } } const slashIndex = data.indexOf('/'); if (slashIndex === -1) { const words = data.trim().split(/\s+/); lastName = words[0] || data; if (lastName) results.push([lastName, '', '', '']); if (infantInfo) results.push([infantInfo.lastName, infantInfo.firstName, infantInfo.dob, infantInfo.gender]); return; } lastName = data.substring(0, slashIndex).trim(); let nameAndTitlePart = data.substring(slashIndex + 1).trim(); nameAndTitlePart = nameAndTitlePart.replace(/\s+/g, ' ').trim(); const chdMarker = "(CHD/"; const chdStartIndex = nameAndTitlePart.indexOf(chdMarker); if (chdStartIndex !== -1) { const dateStartIndex = chdStartIndex + chdMarker.length; const dateEndIndex = dateStartIndex + 7; if (nameAndTitlePart.length >= dateEndIndex + 1 && nameAndTitlePart.charAt(dateEndIndex) === ')') { const dateString = nameAndTitlePart.substring(dateStartIndex, dateEndIndex); if (/^\d{2}[A-Z]{3}\d{2}$/.test(dateString)) { dob = convertDate(dateString, monthMap); nameAndTitlePart = nameAndTitlePart.substring(0, chdStartIndex).trim(); } else { const closingParenIndex = nameAndTitlePart.indexOf(')', chdStartIndex); if (closingParenIndex > chdStartIndex) { nameAndTitlePart = (nameAndTitlePart.substring(0, chdStartIndex) + nameAndTitlePart.substring(closingParenIndex + 1)).trim(); } } } } else { const ageCodeRegex = /(\*C\d+|\*I\d+)/; const ageCodeMatch = nameAndTitlePart.match(ageCodeRegex); if (ageCodeMatch) { nameAndTitlePart = nameAndTitlePart.replace(ageCodeRegex, '').trim(); } } const potentialTitles = ["MS", "MR", "MISS", "MSTR", "INF"]; let foundTitle = false; for (const t of potentialTitles) { const regex = new RegExp(`\\s(${t})$`, 'i'); const titleMatch = nameAndTitlePart.match(regex); if (titleMatch) { title = titleMatch[1].toUpperCase(); firstName = nameAndTitlePart.substring(0, titleMatch.index).trim(); foundTitle = true; break; } } if (!foundTitle) { firstName = nameAndTitlePart; } firstName = firstName.replace(/[-\s]/g, ''); gender = getGender(title); if (lastName || firstName) { results.push([lastName, firstName, dob, gender]); } if (infantInfo) { results.push([infantInfo.lastName, infantInfo.firstName, infantInfo.dob, infantInfo.gender]); } }
+
+        // --- 마우스 이벤트 핸들러들 ---
+        function handleMouseDown(event) { /* 변경 없음 */ const targetCell = event.target; if (targetCell.tagName === 'TD' && !targetCell.hasAttribute('colspan')) { isSelecting = true; startCell = targetCell; clearSelectionHighlights(); targetCell.classList.add('selected-cell'); document.body.classList.add('is-selecting'); copySelectionButton.disabled = true; selectionBounds = null; } }
+        function handleMouseOver(event) { /* 변경 없음 */ if (!isSelecting || !startCell) return; const currentCell = event.target; if (currentCell.tagName === 'TD' && !currentCell.hasAttribute('colspan')) { highlightCells(startCell, currentCell); } }
+        function handleMouseUp(event) { /* 변경 없음 */ if (isSelecting) { isSelecting = false; document.body.classList.remove('is-selecting'); const tableBodyRect = outputTableBody.getBoundingClientRect(); const mouseX = event.clientX; const mouseY = event.clientY; let endCell = startCell; if (mouseX >= tableBodyRect.left && mouseX <= tableBodyRect.right && mouseY >= tableBodyRect.top && mouseY <= tableBodyRect.bottom && event.target.tagName === 'TD') { endCell = event.target; } if (startCell && endCell && endCell.tagName === 'TD' && !endCell.hasAttribute('colspan')) { selectionBounds = calculateBounds(startCell, endCell); copySelectionButton.disabled = !selectionBounds; } else { selectionBounds = null; copySelectionButton.disabled = true; } } }
+        function clearSelectionHighlights() { /* 변경 없음 */ const selectedCells = outputTableBody.querySelectorAll('.selected-cell'); selectedCells.forEach(cell => cell.classList.remove('selected-cell')); }
+        function calculateBounds(startTd, endTd){ /* 변경 없음 */ const startRowIndex = startTd.parentNode.rowIndex; const startColIndex = startTd.cellIndex; const endRowIndex = endTd.parentNode.rowIndex; const endColIndex = endTd.cellIndex; return { minRow: Math.min(startRowIndex, endRowIndex), maxRow: Math.max(startRowIndex, endRowIndex), minCol: Math.min(startColIndex, endColIndex), maxCol: Math.max(startColIndex, endColIndex) }; }
+        function highlightCells(startTd, endTd) { /* 변경 없음 */ clearSelectionHighlights(); const bounds = calculateBounds(startTd, endTd); const rows = outputTable.rows; const headerRowCount = outputTable.tHead ? outputTable.tHead.rows.length : 0; for (let i = bounds.minRow; i <= bounds.maxRow; i++) { if (i >= headerRowCount && rows[i] && rows[i].parentNode.tagName === 'TBODY') { const cells = rows[i].cells; for (let j = bounds.minCol; j <= bounds.maxCol; j++) { if (cells[j]) { cells[j].classList.add('selected-cell'); } } } } }
+
+        // --- [다시 추가] 선택된 셀 데이터 TSV로 만드는 헬퍼 함수 ---
+        function getSelectedDataAsTsv(bounds) {
+            if (!bounds) return null;
+            const selectedRowsTexts = [];
+            const rows = outputTable.rows;
+            const headerRowCount = outputTable.tHead ? outputTable.tHead.rows.length : 0;
+
+            for (let i = bounds.minRow; i <= bounds.maxRow; i++) {
+                // 테이블 본문(tbody) 내의 유효한 행인지 확인
+                if (i < headerRowCount || !rows[i] || rows[i].parentNode.tagName !== 'TBODY') continue;
+                const currentRowTexts = [];
+                const cells = rows[i].cells;
+                for (let j = bounds.minCol; j <= bounds.maxCol; j++) { // 선택된 열 범위만 순회
+                    if (cells[j]) { // 셀이 존재하는지 확인
+                        currentRowTexts.push(cells[j].textContent);
+                    } else {
+                        currentRowTexts.push(""); // 범위 내에 셀이 없는 경우 (이론상으론 없어야 함)
+                    }
+                }
+                selectedRowsTexts.push(currentRowTexts);
+            }
+            if (selectedRowsTexts.length === 0) return null;
+            const tsvRows = selectedRowsTexts.map(rowArray => rowArray.join('\t'));
+            return tsvRows.join('\n');
+        }
+
+        // --- [다시 추가] 브라우저 복사(copy) 이벤트 핸들러 ---
+        function handleNativeCopy(event) {
+            if (selectionBounds) { // 드래그로 선택된 영역이 있을 때만 작동
+                const tsvData = getSelectedDataAsTsv(selectionBounds);
+                if (tsvData && event.clipboardData) {
+                    event.preventDefault(); // 브라우저 기본 복사 막기
+                    event.clipboardData.setData('text/plain', tsvData); // 클립보드에 TSV 데이터 넣기
+
+                    // 피드백 표시
+                    copyFeedback.textContent = '✓ 선택 영역 복사 완료! (Ctrl+C)';
+                    setTimeout(() => { copyFeedback.textContent = ''; }, 2000);
+                } else if (tsvData) {
+                     // clipboardData API를 사용할 수 없는 경우 (매우 드문 경우)
+                     console.warn("clipboardData API를 사용할 수 없어 Ctrl+C 복사를 수행할 수 없습니다.");
+                 }
+            }
+             // selectionBounds가 없으면 기본 복사 동작을 막지 않음
+        }
+
+        // --- 선택 영역 복사 버튼 핸들러 (헬퍼 함수 사용) ---
+        function handleSelectionCopy() {
+            if (!selectionBounds) { alert("복사할 영역이 선택되지 않았습니다."); return; }
+            const tsvData = getSelectedDataAsTsv(selectionBounds);
+            if (!tsvData){ alert("선택된 영역에 복사할 데이터가 없습니다."); return; }
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(tsvData)
+                    .then(() => { copyFeedback.textContent = '✓ 선택 영역 복사 완료!'; setTimeout(() => { copyFeedback.textContent = ''; }, 2000); })
+                    .catch(err => { console.error('선택 영역 복사 실패:', err); alert('선택 영역 복사에 실패했습니다.'); copyFeedback.textContent = ''; });
+            } else { alert('클립보드 복사 기능이 지원되지 않는 브라우저입니다.'); copyFeedback.textContent = ''; }
+        }
+
+        // --- 전체 결과 복사 처리 함수 ---
+        function handleTableCopy() { /* 변경 없음 - 이전 롤백 버전과 동일 */ if (!currentResults || currentResults.length === 0) { alert('복사할 데이터가 없습니다.'); return; } const header = "번호\t영문 성\t영문 이름\t생년월일\t성별"; const rows = currentResults.map((rowArray, index) => { return (index + 1) + '\t' + rowArray.join('\t'); }); const tsvData = header + '\n' + rows.join('\n'); if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(tsvData).then(() => { copyFeedback.textContent = '✓ 전체 복사 완료!'; setTimeout(() => { copyFeedback.textContent = ''; }, 2000); }).catch(err => { console.error('클립보드 복사 실패:', err); alert('클립보드 복사에 실패했습니다.'); copyFeedback.textContent = ''; }); } else { alert('클립보드 복사 기능이 지원되지 않는 브라우저입니다.'); copyFeedback.textContent = ''; } }
+        // --- 성별 결정 함수 ---
+        function getGender(title) { if (!title) return ''; const upperTitle = title.toUpperCase(); if (upperTitle === 'MS' || upperTitle === 'MISS') return '여'; else if (upperTitle === 'MR' || upperTitle === 'MSTR') return '남'; else return ''; }
+        // --- 날짜 변환 함수 ---
+        function convertDate(dateString, monthMap) { if (!dateString || dateString.length !== 7) return ''; const day = dateString.substring(0, 2); const monthAbbr = dateString.substring(2, 5).toUpperCase(); const yearSuffix = parseInt(dateString.substring(5, 7), 10); const month = monthMap[monthAbbr]; if (!month) return ''; const currentYear = new Date().getFullYear(); const century = Math.floor(currentYear / 100); const currentYearSuffix = currentYear % 100; const year = (yearSuffix > currentYearSuffix) ? (century - 1) * 100 + yearSuffix : century * 100 + yearSuffix; const tempDate = new Date(year, parseInt(month, 10) - 1, parseInt(day, 10)); if (tempDate.getFullYear() !== year || tempDate.getMonth() !== (parseInt(month, 10) - 1) || tempDate.getDate() !== parseInt(day, 10)) { return ''; } return `${year}${month}${day}`; }
+
+    </script>
+
+</body>
+</html>
