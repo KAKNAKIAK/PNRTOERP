@@ -459,8 +459,7 @@
             </div>
             
             <div class="instructions">
-                <p><i class="fas fa-info-circle mr-2"></i> 아래 입력란에 PNR 문자열을 붙여넣고 '처리하기' 버튼을 클릭하세요.<br>
-                결과 표의 셀들을 마우스로 드래그하여 영역을 선택한 후, '선택 영역 복사' 버튼 또는 Ctrl+C로 복사할 수 있습니다.</p>
+                <p><i class="fas fa-info-circle mr-2"></i> 아래 입력란에 PNR 문자열을 붙여넣고 '처리하기' 버튼을 클릭하세요.</p>
             </div>
             
             <div class="input-group">
@@ -491,7 +490,7 @@
             <table id="outputTable" class="results-table">
                 <thead>
                     <tr>
-                        <th><i class="fas fa-hashtag"></i> 번호</th>
+                        <th><i class="fas fa-hashtag"></i> </th>
                         <th><i class="fas fa-user-tag"></i> 영문 성</th>
                         <th><i class="fas fa-user"></i> 영문 이름</th>
                         <th><i class="fas fa-calendar-alt"></i> 생년월일</th>
@@ -907,7 +906,7 @@
                 alert('복사할 데이터가 없습니다.'); 
                 return; 
             } 
-            const header = "번호\t영문 성\t영문 이름\t생년월일\t성별"; 
+            const header = "\t영문 성\t영문 이름\t생년월일\t성별"; 
             const rows = currentResults.map((rowArray, index) => { 
                 return (index + 1) + '\t' + rowArray.join('\t'); 
             }); 
