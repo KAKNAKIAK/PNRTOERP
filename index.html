@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PNR 네임필드 추출</title>
+    <title>한원희업무보조툴</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -50,7 +50,7 @@
         .copy-feedback.active { opacity: 1; animation: fadeInOut 2s forwards; }
         @keyframes fadeInOut { 0% { opacity: 0; } 15% { opacity: 1; } 85% { opacity: 1; } 100% { opacity: 0; } }
         .results-table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 1rem; overflow: hidden; border-radius: 0.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
-        .results-table th, .results-table td { padding: 1rem; text-align: left; border-bottom: 1px solid var(--gray-medium); word-break: break-all; /* 긴 이름 줄바꿈 */ }
+        .results-table th, .results-table td { padding: 1rem; text-align: left; border-bottom: 1px solid var(--gray-medium); word-break: break-all; }
         .results-table th { background: linear-gradient(135deg, var(--primary-color) 0%, #6366f1 100%); color: white; font-weight: 500; position: relative; }
         .results-table th:first-child { border-top-left-radius: 0.5rem; }
         .results-table th:last-child { border-top-right-radius: 0.5rem; }
@@ -59,8 +59,15 @@
         .results-table tbody tr:nth-child(even) { background-color: var(--gray-light); }
         .results-table tbody tr:hover { background-color: rgba(79, 70, 229, 0.05); }
         .results-table th:first-child, .results-table td:first-child { text-align: center; width: 60px; }
-        .selected-cell { background-color: rgba(79, 70, 229, 0.15) !important; position: relative; }
-        .selected-cell::after { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; border: 2px solid var(--primary-color); pointer-events: none; z-index: 1; }
+        /* --- 수정: 선택된 셀 스타일 --- */
+        .results-table td.selected-cell {
+             background-color: rgba(79, 70, 229, 0.15) !important; /* 하이라이트 색상 */
+             position: relative;
+             outline: 2px solid var(--primary-color); /* 테두리 효과 */
+             outline-offset: -2px; /* 테두리 안쪽으로 */
+        }
+        /* .selected-cell::after 제거 또는 주석 처리 (outline 사용) */
+        /* .selected-cell::after { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; border: 2px solid var(--primary-color); pointer-events: none; z-index: 1; } */
         .empty-message { color: var(--gray-dark); font-style: italic; padding: 2rem 1rem; text-align: center; user-select: text; }
         .error-message { color: #ef4444; font-weight: 600; padding: 1rem; background-color: #fee2e2; border-radius: 0.5rem; border-left: 4px solid #ef4444; margin-bottom: 1rem; }
         .is-selecting, .is-selecting * { user-select: none; cursor: crosshair !important; }
@@ -79,7 +86,7 @@
                 <div class="logo">
                     <i class="fas fa-laptop-code logo-icon"></i>
                 </div>
-                <h1>PNR 문자열 처리기</h1>
+                <h1>PNR 네임필드추출</h1>
             </div>
         </header>
 
@@ -88,7 +95,7 @@
                 <i class="fas fa-file-import"></i>
                 <h2>PNR 데이터 입력</h2>
             </div>
-            <div class="input-group">
+ <div class="input-group">
                 <label for="pnrInput" class="input-label"><i class="fas fa-keyboard mr-2"></i>PNR 입력:</label>
                 <textarea id="pnrInput" class="input-textarea" placeholder="여기에 PNR 문자열을 입력하세요..."></textarea>
             </div>
@@ -132,7 +139,7 @@
         </div>
 
         <footer class="footer">
-            <p><i class="fas fa-code"></i> PNR Parser v1.5</p> <p>Handles multiple entries per line using improved regex.</p>
+            <p><i class="fas fa-code"></i> PNR Parser v1.6</p> <p>Enhanced cell selection (Click, Drag, Shift+Click, Ctrl+Click).</p>
         </footer>
     </div>
 
@@ -140,11 +147,6 @@
         // --- 상수 정의 ---
         const MONTH_MAP = { JAN: '01', FEB: '02', MAR: '03', APR: '04', MAY: '05', JUN: '06', JUL: '07', AUG: '08', SEP: '09', OCT: '10', NOV: '11', DEC: '12' };
         const POTENTIAL_TITLES = ["MS", "MR", "MISS", "MSTR", "INF"];
-        // [4차 수정] matchAll + 개선된 Lookahead Regex 사용
-        // - (?:^|\s+): 문자열 시작 또는 하나 이상의 공백으로 시작
-        // - (\d[\d\.\/I]*\s*): Prefix 캡처 (숫자시작, 숫자/./I 포함, 뒤 공백 0개 이상) - 그룹 1
-        // - (.*?): Content 캡처 (Non-greedy) - 그룹 2
-        // - (?=\s+\d[\d\.\/I]*\s*|$): 다음 항목 시작(하나 이상 공백 + Prefix 패턴) 또는 문자열 끝 확인 (Positive Lookahead)
         const ENTRY_REGEX = /(?:^|\s+)(\d[\d\.\/I]*\s*)(.*?)(?=\s+\d[\d\.\/I]*\s*|$)/gs;
         const INFANT_REGEX = /\((INF[A-Z]+\/[A-Z\s]+?\s+[A-Z]+\/\d{2}[A-Z]{3}\d{2})\)/;
         const INFANT_DETAIL_REGEX = /INF([A-Z]+)\/([A-Z\s]+?)\s+([A-Z]+)\/(\d{2}[A-Z]{3}\d{2})/;
@@ -163,35 +165,40 @@
 
         // --- 상태 변수 ---
         let currentResults = [];
-        let isSelecting = false;
-        let startCell = null;
-        let selectionBounds = null;
+        let isSelecting = false;      // 마우스 드래그 중인지 여부
+        let startCell = null;         // 드래그 시작 셀
+        let selectedCells = new Set(); // 선택된 셀(<td> 요소)들을 저장하는 Set
+        let lastClickedCell = null;   // 마지막으로 클릭된 셀 (Shift+클릭 앵커용)
+
 
         // --- 이벤트 리스너 ---
         document.addEventListener('DOMContentLoaded', () => {
             parseButton.addEventListener('click', handleParse);
             copyAllButton.addEventListener('click', handleTableCopy);
             copySelectionButton.addEventListener('click', handleSelectionCopy);
-            outputTableBody.addEventListener('mousedown', handleMouseDown);
-            outputTable.addEventListener('mouseover', handleMouseOver);
-            document.addEventListener('mouseup', handleMouseUp);
+            // 테이블 영역에 대한 이벤트 리스너 (mousedown이 핵심)
+            outputTable.addEventListener('mousedown', handleMouseDown); // table로 변경하여 thead 클릭 방지
+            outputTable.addEventListener('mouseover', handleMouseOver); // mouseover는 table에서 감지
+            document.addEventListener('mouseup', handleMouseUp);        // mouseup은 document 전체에서 감지
             document.addEventListener('copy', handleNativeCopy);
+            // 테이블 내에서 기본 드래그 동작(텍스트 선택 등) 방지 (선택 사항)
+            outputTable.addEventListener('dragstart', (e) => e.preventDefault());
             pnrInput.focus();
         });
 
-        // --- 메인 핸들러 ---
+        // --- 메인 핸들러 (handleParse) : 변경 없음 ---
         function handleParse() {
-            const rawPnr = pnrInput.value.replace(/\u00A0/g, ' '); // Non-breaking space 제거
+            const rawPnr = pnrInput.value.replace(/\u00A0/g, ' ');
             outputTableBody.innerHTML = ''; currentResults = [];
-            copyAllButton.disabled = true; copySelectionButton.disabled = true;
-            copyFeedback.textContent = ''; selectionBounds = null;
+            clearSelection(); // 테이블 초기화 시 선택 상태도 초기화
+            copyAllButton.disabled = true;
+            copyFeedback.textContent = '';
             parseButton.classList.remove('pulse-animation');
 
             const displayInitialMessage = (message) => {
                 outputTableBody.innerHTML = `<tr><td colspan="5" class="empty-message">${message}</td></tr>`;
             };
 
-            // trim() 추가하여 입력값 앞뒤 공백 제거
             const trimmedPnr = rawPnr.trim();
             if (!trimmedPnr) { displayInitialMessage("(입력된 PNR 문자열이 없습니다.)"); return; }
 
@@ -202,11 +209,8 @@
                 setTimeout(() => {
                     try {
                         console.log("입력 데이터 처리 시작 (matchAll 방식)...");
-                        console.log("--- Input ---");
-                        console.log(trimmedPnr); // Trim된 입력 로깅
-                        console.log("-------------");
-
-                        const passengerDataArray = parsePnrString(trimmedPnr); // matchAll 기반 파싱 함수 호출
+                        console.log("--- Input ---"); console.log(trimmedPnr); console.log("-------------");
+                        const passengerDataArray = parsePnrString(trimmedPnr);
                         currentResults = passengerDataArray;
                         console.log("파싱 완료. 결과 개수:", currentResults.length);
 
@@ -225,218 +229,320 @@
                                 }
                             });
                             copyAllButton.disabled = false;
-
                             const rows = outputTableBody.getElementsByTagName('tr');
-                            for(let i = 0; i < rows.length; i++) {
-                                setTimeout(() => { rows[i].style.animation = `fadeIn 0.3s ${i * 0.05}s forwards`; }, 50);
-                            }
+                            for(let i = 0; i < rows.length; i++) { setTimeout(() => { rows[i].style.animation = `fadeIn 0.3s ${i * 0.05}s forwards`; }, 50); }
                         }
-
                         parseButton.innerHTML = '<i class="fas fa-check-circle"></i> 처리 완료';
                         setTimeout(() => { parseButton.innerHTML = '<i class="fas fa-cogs"></i> 처리하기'; parseButton.classList.add('pulse-animation'); }, 1500);
-
                     } catch (parseError) {
-                        console.error("파싱 중 내부 오류 발생:", parseError);
-                        displayInitialMessage(`(파싱 오류: ${parseError.message})`);
-                        parseButton.innerHTML = '<i class="fas fa-exclamation-triangle"></i> 처리 실패';
-                        setTimeout(() => { parseButton.innerHTML = '<i class="fas fa-cogs"></i> 처리하기'; }, 1500);
-                    } finally {
-                        parseButton.disabled = false;
-                    }
+                        console.error("파싱 중 내부 오류 발생:", parseError); displayInitialMessage(`(파싱 오류: ${parseError.message})`);
+                        parseButton.innerHTML = '<i class="fas fa-exclamation-triangle"></i> 처리 실패'; setTimeout(() => { parseButton.innerHTML = '<i class="fas fa-cogs"></i> 처리하기'; }, 1500);
+                    } finally { parseButton.disabled = false; }
                 }, 100);
-
             } catch (error) {
-                console.error("처리 중 오류 발생:", error);
-                displayInitialMessage(`(오류 발생: ${error.message})`);
-                parseButton.innerHTML = '<i class="fas fa-exclamation-triangle"></i> 처리 실패';
-                 setTimeout(() => { parseButton.innerHTML = '<i class="fas fa-cogs"></i> 처리하기'; }, 1500);
+                console.error("처리 중 오류 발생:", error); displayInitialMessage(`(오류 발생: ${error.message})`);
+                parseButton.innerHTML = '<i class="fas fa-exclamation-triangle"></i> 처리 실패'; setTimeout(() => { parseButton.innerHTML = '<i class="fas fa-cogs"></i> 처리하기'; }, 1500);
                 parseButton.disabled = false;
             }
         }
 
-        // --- 파싱 관련 함수 ---
 
-        // [수정됨] matchAll과 개선된 정규식을 사용하여 항목 분리
-        function parsePnrString(pnrText) {
+        // --- 파싱 관련 함수들 (변경 없음) ---
+        function parsePnrString(pnrText) { /* ... 이전과 동일 ... */
             const results = [];
             console.log("개선된 정규식 + matchAll 방식으로 항목 매칭 시도...");
-            // 전역 검색(/g)과 다중 라인(/m) 플래그 대신 single line(/s) 플래그가 .이 \n도 포함하게 함
-            // ENTRY_REGEX는 /gs 플래그 사용
             const matches = pnrText.matchAll(ENTRY_REGEX);
             let entryIndex = 0;
 
             for (const match of matches) {
                 entryIndex++;
-                // 그룹 1: Prefix (뒤 공백 포함 가능), 그룹 2: Content
                 let entryPrefixWithSpace = match[1];
-                let passengerDataString = match[2].trim(); // Content 부분 앞뒤 공백 제거
-                let entryPrefix = entryPrefixWithSpace.trim(); // 실제 Prefix (공백 제거)
-
+                let passengerDataString = match[2].trim();
+                let entryPrefix = entryPrefixWithSpace.trim();
                 console.log(`\n[매치 ${entryIndex} 분석]: Prefix='${entryPrefix}', Content="${passengerDataString}"`);
-
-                if (passengerDataString) { // Content가 있는 경우만 처리
+                if (passengerDataString) {
                     processPassengerData(passengerDataString, entryPrefix, results, entryIndex);
-                } else {
-                    console.log(`  -> Content가 비어있어 처리하지 않음.`);
-                }
+                } else { console.log(`  -> Content가 비어있어 처리하지 않음.`); }
             }
-
-            if (entryIndex === 0) {
-                console.warn("정규식으로 유효한 PNR 항목을 찾지 못했습니다. 입력 데이터 또는 정규식을 확인하세요.");
-            }
-            console.log("--- 최종 파싱 결과 배열 (passengerDataArray) ---");
-            console.log(JSON.stringify(results, null, 2));
-            console.log("-------------------------------------------");
+            if (entryIndex === 0) { console.warn("정규식으로 유효한 PNR 항목을 찾지 못했습니다."); }
+            console.log("--- 최종 파싱 결과 배열 ---"); console.log(JSON.stringify(results, null, 2)); console.log("-------------------------");
             return results;
         }
-
-
-        // 개별 승객 데이터 처리 함수 (이전과 동일)
-        function processPassengerData(data, prefix, results, entryIndex = '?') {
+        function processPassengerData(data, prefix, results, entryIndex = '?') { /* ... 이전과 동일 ... */
             let lastName = '', firstName = '', dob = '', gender = '', title = '';
             const isNewFormatInfant = prefix.includes('.I/');
-
             const oldInfantMatch = data.match(INFANT_REGEX);
-            let remainingData = data;
-            let oldInfantInfo = null;
-
+            let remainingData = data; let oldInfantInfo = null;
             if (oldInfantMatch) {
                 console.log(`  [항목 ${entryIndex}] 구 형식 동반 유아 발견: ${oldInfantMatch[0]}`);
-                const infantDataString = oldInfantMatch[1];
-                remainingData = data.replace(oldInfantMatch[0], '').trim();
+                const infantDataString = oldInfantMatch[1]; remainingData = data.replace(oldInfantMatch[0], '').trim();
                 console.log(`  [항목 ${entryIndex}] 주 승객 데이터 (유아 제거 후): "${remainingData}"`);
                 const infantParts = infantDataString.match(INFANT_DETAIL_REGEX);
-                if (infantParts) {
-                    oldInfantInfo = {
-                        lastName: infantParts[1], firstName: infantParts[2].trim().replace(/[-\s]/g, ''),
-                        dob: convertDate(infantParts[4]), gender: getGender(infantParts[3])
-                    };
-                    console.log(`  [항목 ${entryIndex}] 구 형식 동반 유아 정보 파싱됨:`, oldInfantInfo);
+                if (infantParts) { oldInfantInfo = { lastName: infantParts[1], firstName: infantParts[2].trim().replace(/[-\s]/g, ''), dob: convertDate(infantParts[4]), gender: getGender(infantParts[3]) }; console.log(`  [항목 ${entryIndex}] 구 형식 동반 유아 정보 파싱됨:`, oldInfantInfo);
                 } else { console.warn(`  [항목 ${entryIndex}] 구 형식 유아 세부 정보 파싱 실패: ${infantDataString}`); }
             }
-
-            const { cleanedPart, dob: extractedDob } = extractDobAndClean(remainingData);
-            dob = extractedDob;
+            const { cleanedPart, dob: extractedDob } = extractDobAndClean(remainingData); dob = extractedDob;
             console.log(`  [항목 ${entryIndex}] DOB/연령코드 처리 후 데이터: "${cleanedPart}", DOB: "${dob}"`);
-
             const nameParts = extractNameParts(cleanedPart);
-
-            if (!nameParts) {
-                lastName = cleanedPart.split(/\s+/)[0] || cleanedPart;
-                firstName = ''; title = '';
-                console.warn(`  [항목 ${entryIndex}] '/' 분리 불가. 부분 처리: 성='${lastName}'`);
-            } else {
-                lastName = nameParts.lastName;
-                const titleAndName = extractTitleAndName(nameParts.nameAndTitlePart);
-                title = titleAndName.title;
-                firstName = titleAndName.firstName.replace(/[-\s]/g, '');
-                console.log(`  [항목 ${entryIndex}] 이름 분리: 성='${lastName}', 이름 부분='${nameParts.nameAndTitlePart}' -> 이름='${firstName}', Title='${title}'`);
-            }
-
+            if (!nameParts) { lastName = cleanedPart.split(/\s+/)[0] || cleanedPart; firstName = ''; title = ''; console.warn(`  [항목 ${entryIndex}] '/' 분리 불가. 부분 처리: 성='${lastName}'`);
+            } else { lastName = nameParts.lastName; const titleAndName = extractTitleAndName(nameParts.nameAndTitlePart); title = titleAndName.title; firstName = titleAndName.firstName.replace(/[-\s]/g, ''); console.log(`  [항목 ${entryIndex}] 이름 분리: 성='${lastName}', 이름 부분='${nameParts.nameAndTitlePart}' -> 이름='${firstName}', Title='${title}'`); }
             gender = getGender(title);
-
-            const finalPassengerData = [lastName, firstName, dob, gender];
-            console.log(`  [항목 ${entryIndex}] -> 결과 추가 시도 (주 승객):`, finalPassengerData);
-            if (lastName || firstName) { // 성 또는 이름 중 하나라도 있으면 추가
-                 results.push(finalPassengerData);
-            } else {
-                console.warn(`  [항목 ${entryIndex}] 유효하지 않은 데이터(성/이름 모두 없음)로 판단되어 결과에 추가하지 않음.`);
-            }
-
-            if (oldInfantInfo) {
-                const finalInfantData = [oldInfantInfo.lastName, oldInfantInfo.firstName, oldInfantInfo.dob, oldInfantInfo.gender];
-                console.log(`  [항목 ${entryIndex}] -> 결과 추가 시도 (동반 유아 - 구 형식):`, finalInfantData);
-                results.push(finalInfantData);
-            }
-
+            const finalPassengerData = [lastName, firstName, dob, gender]; console.log(`  [항목 ${entryIndex}] -> 결과 추가 시도 (주 승객):`, finalPassengerData);
+            if (lastName || firstName) { results.push(finalPassengerData); } else { console.warn(`  [항목 ${entryIndex}] 유효하지 않은 데이터(성/이름 모두 없음)로 판단되어 결과에 추가하지 않음.`); }
+            if (oldInfantInfo) { const finalInfantData = [oldInfantInfo.lastName, oldInfantInfo.firstName, oldInfantInfo.dob, oldInfantInfo.gender]; console.log(`  [항목 ${entryIndex}] -> 결과 추가 시도 (동반 유아 - 구 형식):`, finalInfantData); results.push(finalInfantData); }
             if (isNewFormatInfant) { console.log(`  [항목 ${entryIndex}] 신 형식 유아 항목으로 식별됨 (Prefix: ${prefix}).`); }
-
             console.log(`  [항목 ${entryIndex}] processPassengerData 종료.`);
         }
+        function extractNameParts(data) { /* ... 이전과 동일 ... */ const slashIndex = data.indexOf('/'); if (slashIndex === -1) { return null; } const lastName = data.substring(0, slashIndex).trim(); const nameAndTitlePart = data.substring(slashIndex + 1).trim(); return { lastName, nameAndTitlePart }; }
+        function extractDobAndClean(nameAndTitlePart) { /* ... 이전과 동일 ... */ let dob = ''; let cleanedPart = nameAndTitlePart.replace(/\s+/g, ' ').trim(); const chdStartIndex = cleanedPart.indexOf(CHD_MARKER); if (chdStartIndex !== -1) { const dateStartIndex = chdStartIndex + CHD_MARKER.length; const dateEndIndex = dateStartIndex + 7; if (cleanedPart.length >= dateEndIndex + 1 && cleanedPart.charAt(dateEndIndex) === ')') { const dateString = cleanedPart.substring(dateStartIndex, dateEndIndex); if (DATE_FORMAT_REGEX.test(dateString)) { dob = convertDate(dateString); cleanedPart = (cleanedPart.substring(0, chdStartIndex) + cleanedPart.substring(dateEndIndex + 1)).trim(); console.log(`    [extractDobAndClean] CHD DOB '${dateString}' 발견 및 제거.`); } else { const closingParenIndex = cleanedPart.indexOf(')', chdStartIndex); if (closingParenIndex > chdStartIndex) { cleanedPart = (cleanedPart.substring(0, chdStartIndex) + cleanedPart.substring(closingParenIndex + 1)).trim(); console.warn(`    [extractDobAndClean] 유효하지 않은 CHD 날짜 '${dateString}'. (CHD...) 부분 제거.`); } } } } const ageCodeMatch = cleanedPart.match(AGE_CODE_REGEX); if (ageCodeMatch) { const matchedCode = ageCodeMatch[0]; cleanedPart = cleanedPart.replace(AGE_CODE_REGEX, '').trim(); console.log(`    [extractDobAndClean] 연령 코드 '${matchedCode}' 발견 및 제거.`); } return { cleanedPart: cleanedPart.replace(/\s+/g, ' ').trim(), dob }; }
+        function extractTitleAndName(cleanedPart) { /* ... 이전과 동일 ... */ let firstName = cleanedPart; let title = ''; for (const t of POTENTIAL_TITLES) { const regex = new RegExp(`\\s(${t})$`, 'i'); const titleMatch = cleanedPart.match(regex); if (titleMatch) { title = titleMatch[1].toUpperCase(); firstName = cleanedPart.substring(0, titleMatch.index).trim(); break; } } if (!title && firstName.includes(' ')) { const parts = firstName.split(' '); const lastWord = parts[parts.length - 1].toUpperCase(); if (POTENTIAL_TITLES.includes(lastWord)) { title = lastWord; firstName = parts.slice(0, -1).join(' '); } } return { firstName, title }; }
+        function getGender(title) { /* ... 이전과 동일 ... */ if (!title) return ''; const upperTitle = title.toUpperCase(); if (upperTitle === 'MS' || upperTitle === 'MISS') return '여'; else if (upperTitle === 'MR' || upperTitle === 'MSTR') return '남'; else return ''; }
+        function convertDate(dateString) { /* ... 이전과 동일 ... */ if (!dateString || typeof dateString !== 'string' || dateString.length !== 7) return ''; const day = dateString.substring(0, 2); const monthAbbr = dateString.substring(2, 5).toUpperCase(); const yearSuffix = parseInt(dateString.substring(5, 7), 10); const month = MONTH_MAP[monthAbbr]; if (!month) return ''; const currentYear = new Date().getFullYear(); const century = Math.floor(currentYear / 100); const currentYearSuffix = currentYear % 100; const calculatedYear = (yearSuffix > currentYearSuffix) ? (century - 1) * 100 + yearSuffix : century * 100 + yearSuffix; const year = (calculatedYear > currentYear) ? calculatedYear - 100 : calculatedYear; const tempDate = new Date(Date.UTC(year, parseInt(month, 10) - 1, parseInt(day, 10))); if (tempDate.getUTCFullYear() !== year || tempDate.getUTCMonth() !== (parseInt(month, 10) - 1) || tempDate.getUTCDate() !== parseInt(day, 10)) { console.warn(`[convertDate] 유효하지 않은 날짜 생성 시도: ${dateString}`); return ''; } return `${year}${month}${day}`; }
 
-        // 이름 분리 함수 (변경 없음)
-        function extractNameParts(data) {
-            const slashIndex = data.indexOf('/');
-            if (slashIndex === -1) { return null; }
-            const lastName = data.substring(0, slashIndex).trim();
-            const nameAndTitlePart = data.substring(slashIndex + 1).trim();
-            return { lastName, nameAndTitlePart };
+
+        // --- [신규/수정됨] 셀 선택 관련 함수 ---
+
+        // 모든 선택 상태 및 하이라이트 제거
+        function clearSelection() {
+            selectedCells.forEach(cell => cell.classList.remove('selected-cell'));
+            selectedCells.clear();
+            startCell = null;
+            lastClickedCell = null;
+            isSelecting = false;
+            updateCopySelectionButtonState();
         }
 
-        // DOB/코드 제거 함수 (변경 없음)
-        function extractDobAndClean(nameAndTitlePart) {
-            let dob = '';
-            let cleanedPart = nameAndTitlePart.replace(/\s+/g, ' ').trim();
-            const chdStartIndex = cleanedPart.indexOf(CHD_MARKER);
-            if (chdStartIndex !== -1) {
-                const dateStartIndex = chdStartIndex + CHD_MARKER.length;
-                const dateEndIndex = dateStartIndex + 7;
-                if (cleanedPart.length >= dateEndIndex + 1 && cleanedPart.charAt(dateEndIndex) === ')') {
-                    const dateString = cleanedPart.substring(dateStartIndex, dateEndIndex);
-                    if (DATE_FORMAT_REGEX.test(dateString)) {
-                        dob = convertDate(dateString);
-                        cleanedPart = (cleanedPart.substring(0, chdStartIndex) + cleanedPart.substring(dateEndIndex + 1)).trim();
-                        console.log(`    [extractDobAndClean] CHD DOB '${dateString}' 발견 및 제거.`);
-                    } else {
-                         const closingParenIndex = cleanedPart.indexOf(')', chdStartIndex);
-                         if (closingParenIndex > chdStartIndex) {
-                            cleanedPart = (cleanedPart.substring(0, chdStartIndex) + cleanedPart.substring(closingParenIndex + 1)).trim();
-                             console.warn(`    [extractDobAndClean] 유효하지 않은 CHD 날짜 '${dateString}'. (CHD...) 부분 제거.`);
-                         }
+        // mousedown 이벤트 핸들러 (핵심 로직)
+        function handleMouseDown(event) {
+            const targetCell = event.target.closest('td');
+            if (!targetCell || !outputTableBody.contains(targetCell) || targetCell.hasAttribute('colspan')) {
+                // 테이블 바디 바깥 클릭 시 선택 해제 (선택 사항)
+                if (!outputTable.contains(event.target)) {
+                    clearSelection();
+                }
+                return;
+            }
+
+            const isShiftPressed = event.shiftKey;
+            const isCtrlPressed = event.ctrlKey || event.metaKey; // Ctrl 또는 Cmd(Mac)
+
+            if (!isShiftPressed && !isCtrlPressed) {
+                // 1. 일반 클릭 (또는 드래그 시작)
+                // 드래그 시작 시 이전 선택은 유지하지 않음 (엑셀 기본 동작)
+                if (!selectedCells.has(targetCell) || selectedCells.size > 1) {
+                     clearSelection(); // 클릭된 셀이 현재 선택의 일부가 아니거나 다중선택 상태였으면 초기화
+                 }
+                // 만약 클릭된 셀만 선택되어 있었다면, 드래그 시작을 위해 유지
+
+                startCell = targetCell;
+                lastClickedCell = targetCell; // 앵커 업데이트
+
+                // Set에 없으면 추가하고 스타일 적용
+                if (!selectedCells.has(targetCell)) {
+                     selectedCells.add(targetCell);
+                     targetCell.classList.add('selected-cell');
+                 }
+
+                isSelecting = true; // 드래그 시작 가능
+                document.body.classList.add('is-selecting'); // 드래그 커서 표시
+
+            } else if (isShiftPressed) {
+                // 2. Shift + 클릭
+                event.preventDefault(); // 기본 텍스트 선택 방지
+                if (!lastClickedCell) { // 앵커 셀이 없으면 일반 클릭처럼 동작
+                    clearSelection();
+                    lastClickedCell = targetCell;
+                    selectedCells.add(targetCell);
+                    targetCell.classList.add('selected-cell');
+                } else {
+                    // 앵커(lastClickedCell)부터 현재 셀(targetCell)까지 사각 영역 선택
+                    selectRange(lastClickedCell, targetCell); // selectRange가 내부적으로 clearSelection 호출
+                }
+                isSelecting = false; // Shift+클릭은 드래그 아님
+                // Shift+클릭 후에는 클릭된 셀이 새로운 앵커가 됨 (엑셀 동작)
+                // lastClickedCell = targetCell; // -> selectRange 후 앵커 업데이트는 불필요. 시작 앵커 유지.
+
+            } else if (isCtrlPressed) {
+                // 3. Ctrl / Cmd + 클릭
+                event.preventDefault(); // 필요시 기본 동작 방지
+                lastClickedCell = targetCell; // Ctrl+클릭한 셀을 다음 Shift+클릭 앵커로 설정
+                if (selectedCells.has(targetCell)) {
+                    // 이미 선택된 셀이면 선택 해제 (단, 마지막 남은 셀은 해제하지 않음 - 선택사항)
+                    if (selectedCells.size > 1) {
+                        selectedCells.delete(targetCell);
+                        targetCell.classList.remove('selected-cell');
+                    }
+                } else {
+                    // 선택되지 않은 셀이면 선택 추가
+                    selectedCells.add(targetCell);
+                    targetCell.classList.add('selected-cell');
+                }
+                isSelecting = false; // Ctrl+클릭은 드래그 아님
+            }
+            updateCopySelectionButtonState();
+        }
+
+        // mouseover 이벤트 핸들러 (드래그 시 작동)
+        function handleMouseOver(event) {
+            if (!isSelecting || !startCell) return; // 일반 클릭 후 드래그 중일 때만
+
+            const currentCell = event.target.closest('td');
+            if (currentCell && outputTableBody.contains(currentCell) && !currentCell.hasAttribute('colspan')) {
+                // 드래그 중에는 실시간으로 사각 영역 선택 업데이트
+                selectRange(startCell, currentCell); // 드래그는 항상 startCell 기준
+                // 드래그 중에는 복사 버튼 상태 계속 업데이트 (선택사항)
+                // updateCopySelectionButtonState();
+            }
+        }
+
+        // mouseup 이벤트 핸들러
+        function handleMouseUp(event) {
+            if (isSelecting) {
+                isSelecting = false; // 드래그 종료
+                document.body.classList.remove('is-selecting'); // 드래그 커서 제거
+                // 드래그 종료 시 최종 선택 상태는 이미 handleMouseOver에서 업데이트됨
+                // 드래그 후 앵커 업데이트: 엑셀은 드래그 시작 셀을 유지하는 듯
+                // lastClickedCell = startCell;
+                updateCopySelectionButtonState(); // 최종 상태로 복사 버튼 업데이트
+            }
+        }
+
+        // 두 셀 사이의 사각 영역을 선택하는 함수
+        function selectRange(cell1, cell2) {
+            // 먼저 기존 선택 모두 해제 (Shift+클릭, 드래그 시)
+            selectedCells.forEach(cell => cell.classList.remove('selected-cell'));
+            selectedCells.clear();
+
+            const bounds = calculateBoundsIndices(cell1, cell2); // 인덱스 기반 경계 계산
+            if (!bounds) return; // 유효하지 않은 셀이면 중단
+
+            const rows = outputTableBody.rows;
+
+            for (let i = bounds.minRow; i <= bounds.maxRow; i++) {
+                if (rows[i]) {
+                    const cells = rows[i].cells;
+                    for (let j = bounds.minCol; j <= bounds.maxCol; j++) {
+                        // 유효한 셀인지 확인 (존재하고, colspan 없고, thead 셀 아닌지)
+                        if (cells[j] && !cells[j].hasAttribute('colspan') && cells[j].parentNode.parentNode === outputTableBody) {
+                            selectedCells.add(cells[j]);
+                            cells[j].classList.add('selected-cell');
+                        }
                     }
                 }
             }
-            const ageCodeMatch = cleanedPart.match(AGE_CODE_REGEX);
-            if (ageCodeMatch) {
-                const matchedCode = ageCodeMatch[0];
-                cleanedPart = cleanedPart.replace(AGE_CODE_REGEX, '').trim();
-                console.log(`    [extractDobAndClean] 연령 코드 '${matchedCode}' 발견 및 제거.`);
-            }
-            return { cleanedPart: cleanedPart.replace(/\s+/g, ' ').trim(), dob };
         }
 
-        // 타이틀/이름 추출 함수 (변경 없음)
-        function extractTitleAndName(cleanedPart) {
-            let firstName = cleanedPart;
-            let title = '';
-            for (const t of POTENTIAL_TITLES) {
-                const regex = new RegExp(`\\s(${t})$`, 'i');
-                const titleMatch = cleanedPart.match(regex);
-                if (titleMatch) {
-                    title = titleMatch[1].toUpperCase();
-                    firstName = cleanedPart.substring(0, titleMatch.index).trim();
-                    break;
+        // 두 셀의 row/column 인덱스 기준 경계 계산
+        function calculateBoundsIndices(td1, td2) {
+            // td1 또는 td2가 유효하지 않은 경우 null 반환
+            if (!td1 || !td1.parentNode || !td2 || !td2.parentNode) return null;
+
+            const headRowCount = outputTable.tHead ? outputTable.tHead.rows.length : 0;
+            // rowIndex는 a <tr> element 에서만 사용 가능. td의 부모(tr)에서 가져옴.
+            const startRowIndex = td1.parentNode.rowIndex - headRowCount;
+            const startColIndex = td1.cellIndex;
+            const endRowIndex = td2.parentNode.rowIndex - headRowCount;
+            const endColIndex = td2.cellIndex;
+
+            // 인덱스가 유효한지 확인 (tbody 내에 있는지)
+            if (startRowIndex < 0 || endRowIndex < 0 || startColIndex < 0 || endColIndex < 0) return null;
+
+            return {
+                minRow: Math.min(startRowIndex, endRowIndex), maxRow: Math.max(startRowIndex, endRowIndex),
+                minCol: Math.min(startColIndex, endColIndex), maxCol: Math.max(startColIndex, endColIndex)
+            };
+        }
+
+
+        // '선택 영역 복사' 버튼 활성화/비활성화 업데이트
+        function updateCopySelectionButtonState() {
+            copySelectionButton.disabled = selectedCells.size === 0;
+            if (!copySelectionButton.disabled && !isSelecting) { // 드래그 중 아닐 때만 강조
+                // pulse-animation 클래스가 없으면 추가
+                if (!copySelectionButton.classList.contains('pulse-animation')) {
+                    copySelectionButton.classList.add('pulse-animation');
+                    // 애니메이션 지속 시간 후 제거 (CSS 애니메이션 시간과 맞추거나 조금 더 길게)
+                    setTimeout(() => {
+                        copySelectionButton.classList.remove('pulse-animation');
+                    }, 2000); // 예: 2초
                 }
+            } else {
+                copySelectionButton.classList.remove('pulse-animation');
             }
-            if (!title && firstName.includes(' ')) {
-                 const parts = firstName.split(' ');
-                 const lastWord = parts[parts.length - 1].toUpperCase();
-                 if (POTENTIAL_TITLES.includes(lastWord)) {
-                     title = lastWord;
-                     firstName = parts.slice(0, -1).join(' ');
-                 }
-             }
-            return { firstName, title };
         }
 
-        // --- 마우스 이벤트 핸들러들 (변경 없음) ---
-        function handleMouseDown(event) { const targetCell = event.target; if (targetCell.tagName === 'TD' && !targetCell.hasAttribute('colspan')) { isSelecting = true; startCell = targetCell; clearSelectionHighlights(); targetCell.classList.add('selected-cell'); document.body.classList.add('is-selecting'); copySelectionButton.disabled = true; selectionBounds = null; } }
-        function handleMouseOver(event) { if (!isSelecting || !startCell) return; const currentCell = event.target; if (currentCell.tagName === 'TD' && !currentCell.hasAttribute('colspan')) { highlightCells(startCell, currentCell); } }
-        function handleMouseUp(event) { if (isSelecting) { isSelecting = false; document.body.classList.remove('is-selecting'); let endCell = startCell; const elementAtMouseUp = document.elementFromPoint(event.clientX, event.clientY); if (elementAtMouseUp && elementAtMouseUp.tagName === 'TD' && outputTableBody.contains(elementAtMouseUp) && !elementAtMouseUp.hasAttribute('colspan')) { endCell = elementAtMouseUp; } else if (event.target.tagName === 'TD' && outputTableBody.contains(event.target) && !event.target.hasAttribute('colspan')) { endCell = event.target; } if (startCell && endCell) { selectionBounds = calculateBounds(startCell, endCell); copySelectionButton.disabled = !selectionBounds; if (!copySelectionButton.disabled) { copySelectionButton.classList.add('pulse-animation'); setTimeout(() => { copySelectionButton.classList.remove('pulse-animation'); }, 2000); } } else { selectionBounds = null; copySelectionButton.disabled = true; } } }
-        function clearSelectionHighlights() { outputTableBody.querySelectorAll('.selected-cell').forEach(cell => cell.classList.remove('selected-cell')); }
-        function calculateBounds(startTd, endTd){ const startRowIndex = startTd.parentNode.rowIndex; const startColIndex = startTd.cellIndex; const endRowIndex = endTd.parentNode.rowIndex; const endColIndex = endTd.cellIndex; return { minRow: Math.min(startRowIndex, endRowIndex), maxRow: Math.max(startRowIndex, endRowIndex), minCol: Math.min(startColIndex, endColIndex), maxCol: Math.max(startColIndex, endColIndex) }; }
-        function highlightCells(startTd, endTd) { clearSelectionHighlights(); const bounds = calculateBounds(startTd, endTd); const rows = outputTable.rows; const headerRowCount = outputTable.tHead ? outputTable.tHead.rows.length : 0; for (let i = bounds.minRow; i <= bounds.maxRow; i++) { if (i >= headerRowCount && rows[i] && rows[i].parentNode.tagName === 'TBODY') { const cells = rows[i].cells; for (let j = bounds.minCol; j <= bounds.maxCol; j++) { if (cells[j]) { cells[j].classList.add('selected-cell'); } } } } }
 
-        // --- 복사 관련 함수 (변경 없음) ---
-        function getSelectedDataAsTsv(bounds) { if (!bounds) return null; const selectedRowsTexts = []; const rows = outputTable.rows; const headerRowCount = outputTable.tHead ? outputTable.tHead.rows.length : 0; for (let i = bounds.minRow; i <= bounds.maxRow; i++) { if (i < headerRowCount || !rows[i] || rows[i].parentNode.tagName !== 'TBODY') continue; const currentRowTexts = []; const cells = rows[i].cells; for (let j = bounds.minCol; j <= bounds.maxCol; j++) { currentRowTexts.push(cells[j] ? cells[j].textContent : ""); } selectedRowsTexts.push(currentRowTexts); } if (selectedRowsTexts.length === 0) return null; return selectedRowsTexts.map(rowArray => rowArray.join('\t')).join('\n'); }
-        function handleNativeCopy(event) { if (selectionBounds && (outputTable.contains(document.activeElement) || outputTable.contains(startCell))) { const tsvData = getSelectedDataAsTsv(selectionBounds); if (tsvData && event.clipboardData) { event.preventDefault(); event.clipboardData.setData('text/plain', tsvData); showCopyFeedback('✓ 선택 영역 복사 완료! (Ctrl+C)'); } else if (tsvData) { console.warn("clipboardData API 사용 불가"); } } }
-        function handleSelectionCopy() { if (!selectionBounds) { alert("복사할 영역이 선택되지 않았습니다."); return; } const tsvData = getSelectedDataAsTsv(selectionBounds); if (!tsvData){ alert("선택된 영역에 복사할 데이터가 없습니다."); return; } if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(tsvData).then(() => { showCopyFeedback('✓ 선택 영역 복사 완료!'); }).catch(err => { console.error('선택 영역 복사 실패:', err); alert('선택 영역 복사에 실패했습니다.'); copyFeedback.textContent = ''; }); } else { try { const textArea = document.createElement("textarea"); textArea.value = tsvData; textArea.style.position = "fixed"; textArea.style.left = "-9999px"; document.body.appendChild(textArea); textArea.focus(); textArea.select(); const successful = document.execCommand('copy'); document.body.removeChild(textArea); if (successful) { showCopyFeedback('✓ 선택 영역 복사 완료! (Fallback)'); } else { throw new Error('execCommand failed'); } } catch (err) { console.error('Fallback 복사 실패:', err); alert('클립보드 복사 기능 미지원 또는 실패.'); copyFeedback.textContent = ''; } } }
-        function handleTableCopy() { if (!currentResults || currentResults.length === 0) { alert('복사할 데이터가 없습니다.'); return; } const header = "#\t영문 성\t영문 이름\t생년월일\t성별"; const rows = currentResults.map((rowArray, index) => (index + 1) + '\t' + (rowArray || []).join('\t')); const tsvData = header + '\n' + rows.join('\n'); if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(tsvData).then(() => { showCopyFeedback('✓ 전체 결과 복사 완료!'); }).catch(err => { console.error('클립보드 복사 실패:', err); alert('클립보드 복사에 실패했습니다.'); copyFeedback.textContent = ''; }); } else { try { const textArea = document.createElement("textarea"); textArea.value = tsvData; textArea.style.position = "fixed"; textArea.style.left = "-9999px"; document.body.appendChild(textArea); textArea.focus(); textArea.select(); const successful = document.execCommand('copy'); document.body.removeChild(textArea); if (successful) { showCopyFeedback('✓ 전체 결과 복사 완료! (Fallback)'); } else { throw new Error('execCommand failed'); } } catch (err) { console.error('Fallback 전체 복사 실패:', err); alert('클립보드 복사 기능 미지원 또는 실패.'); copyFeedback.textContent = ''; } } }
+        // --- 복사 관련 함수 수정 ---
+
+        // 선택된 셀 데이터를 TSV로 변환 (비연속 선택 지원)
+        function getSelectedDataAsTsv() {
+            if (selectedCells.size === 0) return null;
+
+            let minRow = Infinity, maxRow = -Infinity, minCol = Infinity, maxCol = -Infinity;
+            const cellData = [];
+
+            selectedCells.forEach(cell => {
+                const headRowCount = outputTable.tHead ? outputTable.tHead.rows.length : 0;
+                const rowIndex = cell.parentNode.rowIndex - headRowCount;
+                const colIndex = cell.cellIndex;
+                // 유효한 tbody 내 셀만 처리
+                if (rowIndex >= 0 && colIndex >= 0) {
+                    minRow = Math.min(minRow, rowIndex);
+                    maxRow = Math.max(maxRow, rowIndex);
+                    minCol = Math.min(minCol, colIndex);
+                    maxCol = Math.max(maxCol, colIndex);
+                    cellData.push({ row: rowIndex, col: colIndex, text: cell.textContent });
+                }
+            });
+
+             // 만약 유효한 셀이 하나도 없었다면 (이론상 발생하기 어려움)
+            if (cellData.length === 0) return null;
+
+            const numRows = maxRow - minRow + 1;
+            const numCols = maxCol - minCol + 1;
+            const grid = Array(numRows).fill(null).map(() => Array(numCols).fill(""));
+
+            cellData.forEach(data => {
+                grid[data.row - minRow][data.col - minCol] = data.text;
+            });
+
+            const tsvRows = grid.map(rowArray => rowArray.join('\t'));
+            return tsvRows.join('\n');
+        }
+
+
+        // 네이티브 복사 이벤트 핸들러 (getSelectedDataAsTsv 사용)
+        function handleNativeCopy(event) {
+            let isTableFocused = outputTable.contains(document.activeElement) || selectedCells.size > 0;
+
+            if (isTableFocused && selectedCells.size > 0) {
+                const tsvData = getSelectedDataAsTsv();
+                if (tsvData && event.clipboardData) {
+                    event.preventDefault();
+                    event.clipboardData.setData('text/plain', tsvData);
+                    showCopyFeedback('✓ 선택 영역 복사 완료! (Ctrl+C)');
+                } else if (tsvData) { console.warn("clipboardData API 사용 불가"); }
+            }
+        }
+
+        // '선택 영역 복사' 버튼 클릭 핸들러 (getSelectedDataAsTsv 사용)
+        function handleSelectionCopy() {
+            if (selectedCells.size === 0) { alert("복사할 영역이 선택되지 않았습니다."); return; }
+            const tsvData = getSelectedDataAsTsv();
+            if (!tsvData){ alert("선택된 영역에 복사할 데이터가 없습니다."); return; }
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(tsvData).then(() => { showCopyFeedback('✓ 선택 영역 복사 완료!'); }).catch(err => { console.error('선택 영역 복사 실패:', err); alert('선택 영역 복사에 실패했습니다.'); copyFeedback.textContent = ''; });
+            } else { /* ... Fallback 로직 ... */
+                try { const textArea = document.createElement("textarea"); textArea.value = tsvData; textArea.style.position = "fixed"; textArea.style.left = "-9999px"; document.body.appendChild(textArea); textArea.focus(); textArea.select(); const successful = document.execCommand('copy'); document.body.removeChild(textArea); if (successful) { showCopyFeedback('✓ 선택 영역 복사 완료! (Fallback)'); } else { throw new Error('execCommand failed'); } } catch (err) { console.error('Fallback 복사 실패:', err); alert('클립보드 복사 기능 미지원 또는 실패.'); copyFeedback.textContent = ''; }
+            }
+        }
+
+        // '전체 결과 복사' 핸들러 (변경 없음)
+        function handleTableCopy() { /* ... 이전과 동일 ... */ if (!currentResults || currentResults.length === 0) { alert('복사할 데이터가 없습니다.'); return; } const header = "#\t영문 성\t영문 이름\t생년월일\t성별"; const rows = currentResults.map((rowArray, index) => (index + 1) + '\t' + (rowArray || []).join('\t')); const tsvData = header + '\n' + rows.join('\n'); if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(tsvData).then(() => { showCopyFeedback('✓ 전체 결과 복사 완료!'); }).catch(err => { console.error('클립보드 복사 실패:', err); alert('클립보드 복사에 실패했습니다.'); copyFeedback.textContent = ''; }); } else { try { const textArea = document.createElement("textarea"); textArea.value = tsvData; textArea.style.position = "fixed"; textArea.style.left = "-9999px"; document.body.appendChild(textArea); textArea.focus(); textArea.select(); const successful = document.execCommand('copy'); document.body.removeChild(textArea); if (successful) { showCopyFeedback('✓ 전체 결과 복사 완료! (Fallback)'); } else { throw new Error('execCommand failed'); } } catch (err) { console.error('Fallback 전체 복사 실패:', err); alert('클립보드 복사 기능 미지원 또는 실패.'); copyFeedback.textContent = ''; } } }
+
+        // 복사 피드백 표시 함수 (변경 없음)
         function showCopyFeedback(message) { copyFeedback.textContent = message; copyFeedback.classList.add('active'); if (copyFeedback.timerId) { clearTimeout(copyFeedback.timerId); } copyFeedback.timerId = setTimeout(() => { copyFeedback.classList.remove('active'); copyFeedback.timerId = null; }, 2000); }
-
-        // --- 헬퍼 함수 (변경 없음) ---
-        function getGender(title) { if (!title) return ''; const upperTitle = title.toUpperCase(); if (upperTitle === 'MS' || upperTitle === 'MISS') return '여'; else if (upperTitle === 'MR' || upperTitle === 'MSTR') return '남'; else return ''; }
-        function convertDate(dateString) { if (!dateString || typeof dateString !== 'string' || dateString.length !== 7) return ''; const day = dateString.substring(0, 2); const monthAbbr = dateString.substring(2, 5).toUpperCase(); const yearSuffix = parseInt(dateString.substring(5, 7), 10); const month = MONTH_MAP[monthAbbr]; if (!month) return ''; const currentYear = new Date().getFullYear(); const century = Math.floor(currentYear / 100); const currentYearSuffix = currentYear % 100; const calculatedYear = (yearSuffix > currentYearSuffix) ? (century - 1) * 100 + yearSuffix : century * 100 + yearSuffix; const year = (calculatedYear > currentYear) ? calculatedYear - 100 : calculatedYear; const tempDate = new Date(Date.UTC(year, parseInt(month, 10) - 1, parseInt(day, 10))); if (tempDate.getUTCFullYear() !== year || tempDate.getUTCMonth() !== (parseInt(month, 10) - 1) || tempDate.getUTCDate() !== parseInt(day, 10)) { console.warn(`[convertDate] 유효하지 않은 날짜 생성 시도: ${dateString}`); return ''; } return `${year}${month}${day}`; }
 
     </script>
 </body>
