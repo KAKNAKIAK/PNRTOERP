@@ -8,435 +8,68 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        /* --- CSS 스타일 (이전과 동일) --- */
         :root {
-            --primary-color: #4f46e5;
-            --primary-hover: #4338ca;
-            --primary-light: #ebe9fe;
-            --secondary-color: #10b981;
-            --secondary-hover: #059669;
-            --accent-color: #f59e0b;
-            --dark-color: #1f2937;
-            --light-color: #f9fafb;
-            --gray-light: #f3f4f6;
-            --gray-medium: #e5e7eb;
-            --gray-dark: #9ca3af;
+            --primary-color: #4f46e5; --primary-hover: #4338ca; --primary-light: #ebe9fe;
+            --secondary-color: #10b981; --secondary-hover: #059669; --accent-color: #f59e0b;
+            --dark-color: #1f2937; --light-color: #f9fafb; --gray-light: #f3f4f6;
+            --gray-medium: #e5e7eb; --gray-dark: #9ca3af;
         }
-        
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #f6f7ff 0%, #eef1ff 100%);
-            color: var(--dark-color);
-            line-height: 1.6;
-            padding: 0;
-            margin: 0;
-            min-height: 100vh;
-        }
-        
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        
-        .header {
-            background: linear-gradient(135deg, var(--primary-color) 0%, #6366f1 100%);
-            color: white;
-            /* --- 수정: 상하 패딩 축소 --- */
-            padding: 1rem 0;
-            border-radius: 0 0 2rem 2rem;
-            box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.2);
-            margin-bottom: 2rem;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .header::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(
-                0deg,
-                rgba(255, 255, 255, 0.05) 25%,
-                transparent 25%,
-                transparent 50%,
-                rgba(255, 255, 255, 0.05) 50%,
-                rgba(255, 255, 255, 0.05) 75%,
-                transparent 75%
-            );
-            background-size: 20px 20px;
-            transform: rotate(45deg);
-            opacity: 0.3;
-            z-index: 0;
-        }
-        
-        .header-content {
-            position: relative;
-            z-index: 1;
-            text-align: center;
-        }
-        
-        .header h1 {
-            font-size: 2.5rem; /* 제목 크기는 유지 */
-            font-weight: 700;
-            margin: 0;
-            padding: 0;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        
-        .header p {
-            /* --- 수정: 상단 마진 축소 --- */
-            margin-top: 0.25rem;
-            font-weight: 300;
-            max-width: 700px;
-            margin-left: auto;
-            margin-right: auto;
-            opacity: 0.9;
-        }
-        
-        .logo {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            /* --- 수정: 하단 마진 축소 --- */
-            margin-bottom: 0.5rem;
-        }
-        
-        .logo-icon {
-            font-size: 2rem; /* 아이콘 크기는 유지 */
-            margin-right: 0.5rem;
-            color: var(--accent-color);
-        }
-        
-        .card {
-            background: white;
-            border-radius: 1rem;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
-            padding: 2rem;
-            margin-bottom: 2rem;
-            transition: transform 0.3s, box-shadow 0.3s;
-            border: 1px solid rgba(229, 231, 235, 0.5);
-        }
-        
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-        }
-        
-        .card-title {
-            display: flex;
-            align-items: center;
-            margin-bottom: 1.5rem;
-            padding-bottom: 0.75rem;
-            border-bottom: 2px solid var(--gray-medium);
-            color: var(--primary-color);
-        }
-        
-        .card-title i {
-            margin-right: 0.75rem;
-            font-size: 1.5rem;
-        }
-        
-        .card-title h2 {
-            font-size: 1.5rem;
-            font-weight: 600;
-            margin: 0;
-        }
-        
-        .input-group {
-            margin-bottom: 1.5rem;
-        }
-        
-        .input-label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-            color: var(--dark-color);
-        }
-        
-        .input-textarea {
-            width: 100%;
-            min-height: 180px;
-            padding: 1rem;
-            border: 2px solid var(--gray-medium);
-            border-radius: 0.5rem;
-            font-size: 1rem;
-            transition: border-color 0.3s, box-shadow 0.3s;
-            resize: vertical;
-            background-color: var(--light-color);
-            font-family: 'Poppins', sans-serif;
-        }
-        
-        .input-textarea:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
-        }
-        
-        .instructions {
-            background-color: var(--primary-light);
-            padding: 1rem;
-            border-radius: 0.5rem;
-            margin-bottom: 1.5rem;
-            font-size: 0.9rem;
-            border-left: 4px solid var(--primary-color);
-        }
-        
-        .btn-group {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-            margin-bottom: 1.5rem;
-        }
-        
-        .btn {
-            padding: 0.75rem 1.5rem;
-            font-size: 1rem;
-            font-weight: 500;
-            cursor: pointer;
-            border: none;
-            border-radius: 0.5rem;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .btn i {
-            margin-right: 0.5rem;
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary-color) 0%, #6366f1 100%);
-            color: white;
-            box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2);
-        }
-        
-        .btn-primary:hover, .btn-primary:focus {
-            background: linear-gradient(135deg, var(--primary-hover) 0%, #4f46e5 100%);
-            box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.3);
-            transform: translateY(-2px);
-        }
-        
-        .btn-secondary {
-            background: white;
-            color: var(--dark-color);
-            border: 2px solid var(--gray-medium);
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-        }
-        
-        .btn-secondary:hover, .btn-secondary:focus {
-            background: var(--gray-light);
-            border-color: var(--gray-dark);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            transform: translateY(-2px);
-        }
-        
-        .btn-success {
-            background: linear-gradient(135deg, var(--secondary-color) 0%, #34d399 100%);
-            color: white;
-            box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.2);
-        }
-        
-        .btn-success:hover, .btn-success:focus {
-            background: linear-gradient(135deg, var(--secondary-hover) 0%, #10b981 100%);
-            box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.3);
-            transform: translateY(-2px);
-        }
-        
-        .btn:disabled {
-            background: var(--gray-medium);
-            color: var(--gray-dark);
-            cursor: not-allowed;
-            box-shadow: none;
-            transform: none;
-        }
-        
-        .btn:active {
-            transform: translateY(0);
-        }
-        
-        .btn::after {
-            content: '';
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: -100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: left 0.7s;
-        }
-        
-        .btn:hover::after {
-            left: 100%;
-        }
-        
-        .copy-feedback {
-            margin-left: 1rem;
-            color: var(--secondary-color);
-            font-weight: 600;
-            display: inline-block;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-        
-        .copy-feedback.active {
-            opacity: 1;
-            animation: fadeInOut 2s forwards;
-        }
-        
-        @keyframes fadeInOut {
-            0% { opacity: 0; }
-            15% { opacity: 1; }
-            85% { opacity: 1; }
-            100% { opacity: 0; }
-        }
-        
-        .results-table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
-            margin-top: 1rem;
-            overflow: hidden;
-            border-radius: 0.5rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-        
-        .results-table th, .results-table td {
-            padding: 1rem;
-            text-align: left;
-            border-bottom: 1px solid var(--gray-medium);
-        }
-        
-        .results-table th {
-            background: linear-gradient(135deg, var(--primary-color) 0%, #6366f1 100%);
-            color: white;
-            font-weight: 500;
-            position: relative;
-        }
-        
-        .results-table th:first-child {
-            border-top-left-radius: 0.5rem;
-        }
-        
-        .results-table th:last-child {
-            border-top-right-radius: 0.5rem;
-        }
-        
-        .results-table tr:last-child td {
-            border-bottom: none;
-        }
-        
-        .results-table tbody tr {
-            transition: background-color 0.3s;
-        }
-        
-        .results-table tbody tr:nth-child(even) {
-            background-color: var(--gray-light);
-        }
-        
-        .results-table tbody tr:hover {
-            background-color: rgba(79, 70, 229, 0.05);
-        }
-        
-        .results-table th:first-child, .results-table td:first-child {
-            text-align: center;
-            width: 60px;
-        }
-        
-        .selected-cell {
-            background-color: rgba(79, 70, 229, 0.15) !important;
-            position: relative;
-        }
-        
-        .selected-cell::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            border: 2px solid var(--primary-color);
-            pointer-events: none;
-            z-index: 1;
-        }
-        
-        .empty-message {
-            color: var(--gray-dark);
-            font-style: italic;
-            padding: 2rem 1rem;
-            text-align: center;
-            -webkit-user-select: text;
-            -moz-user-select: text;
-            -ms-user-select: text;
-            user-select: text;
-        }
-        
-        .error-message {
-            color: #ef4444;
-            font-weight: 600;
-            padding: 1rem;
-            background-color: #fee2e2;
-            border-radius: 0.5rem;
-            border-left: 4px solid #ef4444;
-            margin-bottom: 1rem;
-        }
-        
-        .is-selecting, .is-selecting * {
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
-            cursor: crosshair !important;
-        }
-        
-        .footer {
-            text-align: center;
-            padding: 2rem 0;
-            margin-top: 2rem;
-            color: var(--gray-dark);
-            font-size: 0.875rem;
-        }
-        
-        .footer p {
-            margin: 0.5rem 0;
-        }
-        
-        .pulse-animation {
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.4); }
-            70% { box-shadow: 0 0 0 10px rgba(79, 70, 229, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0); }
-        }
-        
-        /* Enhancement for PDF export */
-        @media print {
-            body {
-                background: white;
-            }
-            
-            .card {
-                box-shadow: none;
-                margin-bottom: 1.5rem;
-                break-inside: avoid;
-            }
-            
-            .card:hover {
-                transform: none;
-                box-shadow: none;
-            }
-            
-            .header {
-                break-inside: avoid;
-            }
-        }
+        body { font-family: 'Poppins', sans-serif; background: linear-gradient(135deg, #f6f7ff 0%, #eef1ff 100%); color: var(--dark-color); line-height: 1.6; padding: 0; margin: 0; min-height: 100vh; }
+        .container { max-width: 1000px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, var(--primary-color) 0%, #6366f1 100%); color: white; padding: 1rem 0; border-radius: 0 0 2rem 2rem; box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.2); margin-bottom: 2rem; position: relative; overflow: hidden; }
+        .header::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: linear-gradient(0deg, rgba(255, 255, 255, 0.05) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.05) 50%, rgba(255, 255, 255, 0.05) 75%, transparent 75%); background-size: 20px 20px; transform: rotate(45deg); opacity: 0.3; z-index: 0; }
+        .header-content { position: relative; z-index: 1; text-align: center; }
+        .header h1 { font-size: 2.5rem; font-weight: 700; margin: 0; padding: 0; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
+        .logo { display: flex; align-items: center; justify-content: center; margin-bottom: 0.5rem; }
+        .logo-icon { font-size: 2rem; margin-right: 0.5rem; color: var(--accent-color); }
+        .card { background: white; border-radius: 1rem; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); padding: 2rem; margin-bottom: 2rem; transition: transform 0.3s, box-shadow 0.3s; border: 1px solid rgba(229, 231, 235, 0.5); }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
+        .card-title { display: flex; align-items: center; margin-bottom: 1.5rem; padding-bottom: 0.75rem; border-bottom: 2px solid var(--gray-medium); color: var(--primary-color); }
+        .card-title i { margin-right: 0.75rem; font-size: 1.5rem; }
+        .card-title h2 { font-size: 1.5rem; font-weight: 600; margin: 0; }
+        .input-group { margin-bottom: 1.5rem; }
+        .input-label { display: block; margin-bottom: 0.5rem; font-weight: 500; color: var(--dark-color); }
+        .input-textarea { width: 100%; min-height: 180px; padding: 1rem; border: 2px solid var(--gray-medium); border-radius: 0.5rem; font-size: 1rem; transition: border-color 0.3s, box-shadow 0.3s; resize: vertical; background-color: var(--light-color); font-family: 'Poppins', sans-serif; }
+        .input-textarea:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
+        .instructions { background-color: var(--primary-light); padding: 1rem; border-radius: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem; border-left: 4px solid var(--primary-color); }
+        .btn-group { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+        .btn { padding: 0.75rem 1.5rem; font-size: 1rem; font-weight: 500; cursor: pointer; border: none; border-radius: 0.5rem; display: inline-flex; align-items: center; justify-content: center; transition: all 0.3s; position: relative; overflow: hidden; }
+        .btn i { margin-right: 0.5rem; }
+        .btn-primary { background: linear-gradient(135deg, var(--primary-color) 0%, #6366f1 100%); color: white; box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2); }
+        .btn-primary:hover, .btn-primary:focus { background: linear-gradient(135deg, var(--primary-hover) 0%, #4f46e5 100%); box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.3); transform: translateY(-2px); }
+        .btn-secondary { background: white; color: var(--dark-color); border: 2px solid var(--gray-medium); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); }
+        .btn-secondary:hover, .btn-secondary:focus { background: var(--gray-light); border-color: var(--gray-dark); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); transform: translateY(-2px); }
+        .btn-success { background: linear-gradient(135deg, var(--secondary-color) 0%, #34d399 100%); color: white; box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.2); }
+        .btn-success:hover, .btn-success:focus { background: linear-gradient(135deg, var(--secondary-hover) 0%, #10b981 100%); box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.3); transform: translateY(-2px); }
+        .btn:disabled { background: var(--gray-medium); color: var(--gray-dark); cursor: not-allowed; box-shadow: none; transform: none; }
+        .btn:active { transform: translateY(0); }
+        .btn::after { content: ''; position: absolute; width: 100%; height: 100%; top: 0; left: -100%; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent); transition: left 0.7s; }
+        .btn:hover::after { left: 100%; }
+        .copy-feedback { margin-left: 1rem; color: var(--secondary-color); font-weight: 600; display: inline-block; opacity: 0; transition: opacity 0.3s; }
+        .copy-feedback.active { opacity: 1; animation: fadeInOut 2s forwards; }
+        @keyframes fadeInOut { 0% { opacity: 0; } 15% { opacity: 1; } 85% { opacity: 1; } 100% { opacity: 0; } }
+        .results-table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 1rem; overflow: hidden; border-radius: 0.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        .results-table th, .results-table td { padding: 1rem; text-align: left; border-bottom: 1px solid var(--gray-medium); word-break: break-all; /* 긴 이름 줄바꿈 */ }
+        .results-table th { background: linear-gradient(135deg, var(--primary-color) 0%, #6366f1 100%); color: white; font-weight: 500; position: relative; }
+        .results-table th:first-child { border-top-left-radius: 0.5rem; }
+        .results-table th:last-child { border-top-right-radius: 0.5rem; }
+        .results-table tr:last-child td { border-bottom: none; }
+        .results-table tbody tr { transition: background-color 0.3s; }
+        .results-table tbody tr:nth-child(even) { background-color: var(--gray-light); }
+        .results-table tbody tr:hover { background-color: rgba(79, 70, 229, 0.05); }
+        .results-table th:first-child, .results-table td:first-child { text-align: center; width: 60px; }
+        .selected-cell { background-color: rgba(79, 70, 229, 0.15) !important; position: relative; }
+        .selected-cell::after { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; border: 2px solid var(--primary-color); pointer-events: none; z-index: 1; }
+        .empty-message { color: var(--gray-dark); font-style: italic; padding: 2rem 1rem; text-align: center; user-select: text; }
+        .error-message { color: #ef4444; font-weight: 600; padding: 1rem; background-color: #fee2e2; border-radius: 0.5rem; border-left: 4px solid #ef4444; margin-bottom: 1rem; }
+        .is-selecting, .is-selecting * { user-select: none; cursor: crosshair !important; }
+        .footer { text-align: center; padding: 2rem 0; margin-top: 2rem; color: var(--gray-dark); font-size: 0.875rem; }
+        .footer p { margin: 0.5rem 0; }
+        .pulse-animation { animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(79, 70, 229, 0); } 100% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0); } }
+        @media print { body { background: white; } .card { box-shadow: none; margin-bottom: 1.5rem; break-inside: avoid; } .card:hover { transform: none; box-shadow: none; } .header { break-inside: avoid; } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
@@ -445,7 +78,6 @@
             <div class="header-content">
                 <div class="logo">
                     <i class="fas fa-laptop-code logo-icon"></i>
-                    <span class="text-2xl font-bold"></span>
                 </div>
                 <h1>PNR 문자열 처리기</h1>
             </div>
@@ -456,16 +88,11 @@
                 <i class="fas fa-file-import"></i>
                 <h2>PNR 데이터 입력</h2>
             </div>
-            
-            <div class="instructions">
-                <p><i class="fas fa-info-circle mr-2"></i> 아래 입력란에 PNR 문자열을 붙여넣고 '처리하기' 버튼을 클릭하세요.</p>
-            </div>
-            
             <div class="input-group">
                 <label for="pnrInput" class="input-label"><i class="fas fa-keyboard mr-2"></i>PNR 입력:</label>
                 <textarea id="pnrInput" class="input-textarea" placeholder="여기에 PNR 문자열을 입력하세요..."></textarea>
             </div>
-            
+
             <div class="btn-group">
                 <button id="parseButton" class="btn btn-primary pulse-animation">
                     <i class="fas fa-cogs"></i> 처리하기
@@ -485,11 +112,11 @@
                 <i class="fas fa-table"></i>
                 <h2>출력 결과</h2>
             </div>
-            
+
             <table id="outputTable" class="results-table">
                 <thead>
                     <tr>
-                        <th><i class="fas fa-hashtag"></i> </th>
+                        <th><i class="fas fa-hashtag"></i></th>
                         <th><i class="fas fa-user-tag"></i> 영문 성</th>
                         <th><i class="fas fa-user"></i> 영문 이름</th>
                         <th><i class="fas fa-calendar-alt"></i> 생년월일</th>
@@ -505,8 +132,7 @@
         </div>
 
         <footer class="footer">
-            <p><i class="fas fa-code"></i></p>
-            <p></p>
+            <p><i class="fas fa-code"></i> PNR Parser v1.5</p> <p>Handles multiple entries per line using improved regex.</p>
         </footer>
     </div>
 
@@ -514,7 +140,12 @@
         // --- 상수 정의 ---
         const MONTH_MAP = { JAN: '01', FEB: '02', MAR: '03', APR: '04', MAY: '05', JUN: '06', JUL: '07', AUG: '08', SEP: '09', OCT: '10', NOV: '11', DEC: '12' };
         const POTENTIAL_TITLES = ["MS", "MR", "MISS", "MSTR", "INF"];
-        const ENTRY_REGEX = /(\d+\.(?:\d+\s)?|\s*I\/\d+\s)(.*?)(?=\s*\d+\.(?:\d+\s)?|\s*I\/\d+\s|$)/gs;
+        // [4차 수정] matchAll + 개선된 Lookahead Regex 사용
+        // - (?:^|\s+): 문자열 시작 또는 하나 이상의 공백으로 시작
+        // - (\d[\d\.\/I]*\s*): Prefix 캡처 (숫자시작, 숫자/./I 포함, 뒤 공백 0개 이상) - 그룹 1
+        // - (.*?): Content 캡처 (Non-greedy) - 그룹 2
+        // - (?=\s+\d[\d\.\/I]*\s*|$): 다음 항목 시작(하나 이상 공백 + Prefix 패턴) 또는 문자열 끝 확인 (Positive Lookahead)
+        const ENTRY_REGEX = /(?:^|\s+)(\d[\d\.\/I]*\s*)(.*?)(?=\s+\d[\d\.\/I]*\s*|$)/gs;
         const INFANT_REGEX = /\((INF[A-Z]+\/[A-Z\s]+?\s+[A-Z]+\/\d{2}[A-Z]{3}\d{2})\)/;
         const INFANT_DETAIL_REGEX = /INF([A-Z]+)\/([A-Z\s]+?)\s+([A-Z]+)\/(\d{2}[A-Z]{3}\d{2})/;
         const CHD_MARKER = "(CHD/";
@@ -537,182 +168,205 @@
         let selectionBounds = null;
 
         // --- 이벤트 리스너 ---
-        parseButton.addEventListener('click', handleParse);
-        copyAllButton.addEventListener('click', handleTableCopy);
-        copySelectionButton.addEventListener('click', handleSelectionCopy);
-        outputTableBody.addEventListener('mousedown', handleMouseDown);
-        outputTable.addEventListener('mouseover', handleMouseOver);
-        document.addEventListener('mouseup', handleMouseUp);
-        document.addEventListener('copy', handleNativeCopy);
+        document.addEventListener('DOMContentLoaded', () => {
+            parseButton.addEventListener('click', handleParse);
+            copyAllButton.addEventListener('click', handleTableCopy);
+            copySelectionButton.addEventListener('click', handleSelectionCopy);
+            outputTableBody.addEventListener('mousedown', handleMouseDown);
+            outputTable.addEventListener('mouseover', handleMouseOver);
+            document.addEventListener('mouseup', handleMouseUp);
+            document.addEventListener('copy', handleNativeCopy);
+            pnrInput.focus();
+        });
 
         // --- 메인 핸들러 ---
         function handleParse() {
-            const rawPnr = pnrInput.value.trim().replace(/\u00A0/g, ' ');
+            const rawPnr = pnrInput.value.replace(/\u00A0/g, ' '); // Non-breaking space 제거
             outputTableBody.innerHTML = ''; currentResults = [];
             copyAllButton.disabled = true; copySelectionButton.disabled = true;
             copyFeedback.textContent = ''; selectionBounds = null;
             parseButton.classList.remove('pulse-animation');
 
-            const displayInitialMessage = (message) => { 
+            const displayInitialMessage = (message) => {
                 outputTableBody.innerHTML = `<tr><td colspan="5" class="empty-message">${message}</td></tr>`;
             };
-            
-            if (!rawPnr) { displayInitialMessage("(입력된 PNR 문자열이 없습니다.)"); return; }
+
+            // trim() 추가하여 입력값 앞뒤 공백 제거
+            const trimmedPnr = rawPnr.trim();
+            if (!trimmedPnr) { displayInitialMessage("(입력된 PNR 문자열이 없습니다.)"); return; }
 
             try {
-                // 처리 효과를 위한 약간의 지연
                 parseButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 처리 중...';
-                
-                setTimeout(() => {
-                    const passengerDataArray = parsePnrString(rawPnr);
-                    currentResults = passengerDataArray;
+                parseButton.disabled = true;
 
-                    if (!passengerDataArray || passengerDataArray.length === 0) {
-                        displayInitialMessage("(처리할 승객 정보가 없습니다.)");
-                    } else {
-                        passengerDataArray.forEach((passengerData, index) => { // 테이블 생성
-                            const row = outputTableBody.insertRow();
-                            const numCell = row.insertCell(0); numCell.textContent = index + 1;
-                            if (Array.isArray(passengerData) && passengerData.length === 4) {
-                                passengerData.forEach(fieldData => { const cell = row.insertCell(); cell.textContent = fieldData ?? ''; });
-                            } else {
-                                console.error(`[handleParse] 잘못된 데이터 형식 발견 at index ${index}:`, passengerData);
-                                for(let k=0; k<4; k++) { row.insertCell(); }
+                setTimeout(() => {
+                    try {
+                        console.log("입력 데이터 처리 시작 (matchAll 방식)...");
+                        console.log("--- Input ---");
+                        console.log(trimmedPnr); // Trim된 입력 로깅
+                        console.log("-------------");
+
+                        const passengerDataArray = parsePnrString(trimmedPnr); // matchAll 기반 파싱 함수 호출
+                        currentResults = passengerDataArray;
+                        console.log("파싱 완료. 결과 개수:", currentResults.length);
+
+                        if (!passengerDataArray || passengerDataArray.length === 0) {
+                            displayInitialMessage("(처리할 승객 정보가 없습니다. 입력 형식을 확인하세요.)");
+                        } else {
+                            passengerDataArray.forEach((passengerData, index) => {
+                                const row = outputTableBody.insertRow();
+                                row.style.opacity = '0';
+                                const numCell = row.insertCell(0); numCell.textContent = index + 1;
+                                if (Array.isArray(passengerData) && passengerData.length === 4) {
+                                    passengerData.forEach(fieldData => { const cell = row.insertCell(); cell.textContent = fieldData ?? ''; });
+                                } else {
+                                    console.error(`[handleParse] 잘못된 데이터 형식 발견 at index ${index}:`, passengerData);
+                                    for(let k=0; k<4; k++) { const cell = row.insertCell(); cell.textContent = 'Error'; }
+                                }
+                            });
+                            copyAllButton.disabled = false;
+
+                            const rows = outputTableBody.getElementsByTagName('tr');
+                            for(let i = 0; i < rows.length; i++) {
+                                setTimeout(() => { rows[i].style.animation = `fadeIn 0.3s ${i * 0.05}s forwards`; }, 50);
                             }
-                        });
-                        copyAllButton.disabled = false;
-                        
-                        // 행 애니메이션 효과
-                        const rows = outputTableBody.getElementsByTagName('tr');
-                        for(let i = 0; i < rows.length; i++) {
-                            setTimeout(() => {
-                                rows[i].style.animation = 'fadeIn 0.3s forwards';
-                            }, i * 100);
                         }
+
+                        parseButton.innerHTML = '<i class="fas fa-check-circle"></i> 처리 완료';
+                        setTimeout(() => { parseButton.innerHTML = '<i class="fas fa-cogs"></i> 처리하기'; parseButton.classList.add('pulse-animation'); }, 1500);
+
+                    } catch (parseError) {
+                        console.error("파싱 중 내부 오류 발생:", parseError);
+                        displayInitialMessage(`(파싱 오류: ${parseError.message})`);
+                        parseButton.innerHTML = '<i class="fas fa-exclamation-triangle"></i> 처리 실패';
+                        setTimeout(() => { parseButton.innerHTML = '<i class="fas fa-cogs"></i> 처리하기'; }, 1500);
+                    } finally {
+                        parseButton.disabled = false;
                     }
-                    
-                    parseButton.innerHTML = '<i class="fas fa-check-circle"></i> 처리 완료';
-                    setTimeout(() => {
-                        parseButton.innerHTML = '<i class="fas fa-cogs"></i> 처리하기';
-                        parseButton.classList.add('pulse-animation');
-                    }, 1500);
-                    
-                }, 500); // 의도적인 지연 - 처리 효과
-            } catch (error) { 
+                }, 100);
+
+            } catch (error) {
                 console.error("처리 중 오류 발생:", error);
                 displayInitialMessage(`(오류 발생: ${error.message})`);
                 parseButton.innerHTML = '<i class="fas fa-exclamation-triangle"></i> 처리 실패';
-                setTimeout(() => {
-                    parseButton.innerHTML = '<i class="fas fa-cogs"></i> 처리하기';
-                }, 1500);
+                 setTimeout(() => { parseButton.innerHTML = '<i class="fas fa-cogs"></i> 처리하기'; }, 1500);
+                parseButton.disabled = false;
             }
         }
 
         // --- 파싱 관련 함수 ---
+
+        // [수정됨] matchAll과 개선된 정규식을 사용하여 항목 분리
         function parsePnrString(pnrText) {
-             const results = [];
-             console.log("새로운 정규식으로 항목 매칭 시도...");
-             const matches = pnrText.matchAll(ENTRY_REGEX);
-             let entryIndex = 0;
-             for (const match of matches) {
-                 entryIndex++;
-                 let passengerDataString = match[2].trim(); // 내용 부분만 추출
-                 console.log(`\n[매치 ${entryIndex} 분석]: "${passengerDataString}"`);
-                 if (!passengerDataString) { console.log(` -> 유효 데이터 없음.`); continue; }
-                 processPassengerData(passengerDataString, results, entryIndex); // 수정됨: monthMap 제거
-             }
-             if (entryIndex === 0) { console.warn("정규식으로 유효한 PNR 항목을 찾지 못했습니다."); }
-             console.log("--- 최종 파싱 결과 배열 (passengerDataArray) ---");
-             console.log(JSON.stringify(results, null, 2));
-             console.log("-------------------------------------------");
-             return results;
-        }
+            const results = [];
+            console.log("개선된 정규식 + matchAll 방식으로 항목 매칭 시도...");
+            // 전역 검색(/g)과 다중 라인(/m) 플래그 대신 single line(/s) 플래그가 .이 \n도 포함하게 함
+            // ENTRY_REGEX는 /gs 플래그 사용
+            const matches = pnrText.matchAll(ENTRY_REGEX);
+            let entryIndex = 0;
 
-        // [리팩토링됨] 개별 승객 데이터 처리 (조율자 역할)
-        function processPassengerData(data, results, entryIndex = '?') {
-            let lastName = '', firstName = '', dob = '', gender = '', title = '';
+            for (const match of matches) {
+                entryIndex++;
+                // 그룹 1: Prefix (뒤 공백 포함 가능), 그룹 2: Content
+                let entryPrefixWithSpace = match[1];
+                let passengerDataString = match[2].trim(); // Content 부분 앞뒤 공백 제거
+                let entryPrefix = entryPrefixWithSpace.trim(); // 실제 Prefix (공백 제거)
 
-            // 1. Infant 정보 파싱 및 분리
-            const { remainingData, infantInfo } = parseInfant(data);
-            if (infantInfo) {
-                 console.log(`  [항목 ${entryIndex}] 동반 유아 정보 파싱됨:`, infantInfo);
-            }
+                console.log(`\n[매치 ${entryIndex} 분석]: Prefix='${entryPrefix}', Content="${passengerDataString}"`);
 
-            // 2. 이름 부분 분리
-            const nameParts = extractNameParts(remainingData); // Infant 제거된 데이터 사용
-            if (!nameParts) { // '/'가 없는 경우 처리
-                 lastName = remainingData.trim().split(/\s+/)[0] || remainingData;
-                 console.warn(`  [항목 ${entryIndex}] '/' 분리 불가.`);
-                 if (lastName) { results.push([lastName, '', '', '']); }
-                 // Infant 정보는 별도로 아래에서 추가됨
-            } else {
-                 lastName = nameParts.lastName;
-                 // 3. DOB 추출 및 Name/Title 부분 정제
-                 const { cleanedPart, dob: extractedDob } = extractDobAndClean(nameParts.nameAndTitlePart);
-                 dob = extractedDob; // DOB 설정
-                 // 4. Title 및 최종 이름 추출
-                 const titleAndName = extractTitleAndName(cleanedPart);
-                 title = titleAndName.title;
-                 // 5. 이름 최종 정제 (공백/하이픈 제거)
-                 firstName = titleAndName.firstName.replace(/[-\s]/g, '');
-            }
-
-             // 6. 성별 결정
-             gender = getGender(title);
-
-             // 7. 결과 추가 (주 승객)
-             const finalPassengerData = [lastName, firstName, dob, gender];
-             console.log(`  [항목 ${entryIndex}] -> 결과 추가 시도:`, finalPassengerData);
-             if (lastName || firstName) { results.push(finalPassengerData); }
-             else { console.warn(`  [항목 ${entryIndex}] 유효하지 않은 데이터로 판단되어 결과에 추가하지 않음.`); }
-
-
-             // 8. 결과 추가 (동반 유아)
-             if (infantInfo) {
-                 const finalInfantData = [infantInfo.lastName, infantInfo.firstName, infantInfo.dob, infantInfo.gender];
-                 console.log(`  [항목 ${entryIndex}] -> 결과 추가 시도 (동반 유아):`, finalInfantData);
-                 results.push(finalInfantData);
-             }
-              console.log(`  [항목 ${entryIndex}] processPassengerData 종료.`);
-        }
-
-        // [신규] Infant 정보 파싱 함수
-        function parseInfant(data) {
-            let infantInfo = null;
-            let remainingData = data;
-            const infantMatch = data.match(INFANT_REGEX);
-            if (infantMatch) {
-                const infantDataString = infantMatch[1];
-                remainingData = data.replace(infantMatch[0], '').trim(); // 원본 data에서 INF 제거
-                const infantParts = infantDataString.match(INFANT_DETAIL_REGEX);
-                if (infantParts) {
-                    infantInfo = {
-                        lastName: infantParts[1],
-                        firstName: infantParts[2].trim().replace(/[-\s]/g, ''),
-                        dob: convertDate(infantParts[4]), // monthMap 제거
-                        gender: getGender(infantParts[3])
-                    };
+                if (passengerDataString) { // Content가 있는 경우만 처리
+                    processPassengerData(passengerDataString, entryPrefix, results, entryIndex);
+                } else {
+                    console.log(`  -> Content가 비어있어 처리하지 않음.`);
                 }
             }
-            return { remainingData, infantInfo };
+
+            if (entryIndex === 0) {
+                console.warn("정규식으로 유효한 PNR 항목을 찾지 못했습니다. 입력 데이터 또는 정규식을 확인하세요.");
+            }
+            console.log("--- 최종 파싱 결과 배열 (passengerDataArray) ---");
+            console.log(JSON.stringify(results, null, 2));
+            console.log("-------------------------------------------");
+            return results;
         }
 
-        // [신규] '/' 기준 이름 분리 함수
+
+        // 개별 승객 데이터 처리 함수 (이전과 동일)
+        function processPassengerData(data, prefix, results, entryIndex = '?') {
+            let lastName = '', firstName = '', dob = '', gender = '', title = '';
+            const isNewFormatInfant = prefix.includes('.I/');
+
+            const oldInfantMatch = data.match(INFANT_REGEX);
+            let remainingData = data;
+            let oldInfantInfo = null;
+
+            if (oldInfantMatch) {
+                console.log(`  [항목 ${entryIndex}] 구 형식 동반 유아 발견: ${oldInfantMatch[0]}`);
+                const infantDataString = oldInfantMatch[1];
+                remainingData = data.replace(oldInfantMatch[0], '').trim();
+                console.log(`  [항목 ${entryIndex}] 주 승객 데이터 (유아 제거 후): "${remainingData}"`);
+                const infantParts = infantDataString.match(INFANT_DETAIL_REGEX);
+                if (infantParts) {
+                    oldInfantInfo = {
+                        lastName: infantParts[1], firstName: infantParts[2].trim().replace(/[-\s]/g, ''),
+                        dob: convertDate(infantParts[4]), gender: getGender(infantParts[3])
+                    };
+                    console.log(`  [항목 ${entryIndex}] 구 형식 동반 유아 정보 파싱됨:`, oldInfantInfo);
+                } else { console.warn(`  [항목 ${entryIndex}] 구 형식 유아 세부 정보 파싱 실패: ${infantDataString}`); }
+            }
+
+            const { cleanedPart, dob: extractedDob } = extractDobAndClean(remainingData);
+            dob = extractedDob;
+            console.log(`  [항목 ${entryIndex}] DOB/연령코드 처리 후 데이터: "${cleanedPart}", DOB: "${dob}"`);
+
+            const nameParts = extractNameParts(cleanedPart);
+
+            if (!nameParts) {
+                lastName = cleanedPart.split(/\s+/)[0] || cleanedPart;
+                firstName = ''; title = '';
+                console.warn(`  [항목 ${entryIndex}] '/' 분리 불가. 부분 처리: 성='${lastName}'`);
+            } else {
+                lastName = nameParts.lastName;
+                const titleAndName = extractTitleAndName(nameParts.nameAndTitlePart);
+                title = titleAndName.title;
+                firstName = titleAndName.firstName.replace(/[-\s]/g, '');
+                console.log(`  [항목 ${entryIndex}] 이름 분리: 성='${lastName}', 이름 부분='${nameParts.nameAndTitlePart}' -> 이름='${firstName}', Title='${title}'`);
+            }
+
+            gender = getGender(title);
+
+            const finalPassengerData = [lastName, firstName, dob, gender];
+            console.log(`  [항목 ${entryIndex}] -> 결과 추가 시도 (주 승객):`, finalPassengerData);
+            if (lastName || firstName) { // 성 또는 이름 중 하나라도 있으면 추가
+                 results.push(finalPassengerData);
+            } else {
+                console.warn(`  [항목 ${entryIndex}] 유효하지 않은 데이터(성/이름 모두 없음)로 판단되어 결과에 추가하지 않음.`);
+            }
+
+            if (oldInfantInfo) {
+                const finalInfantData = [oldInfantInfo.lastName, oldInfantInfo.firstName, oldInfantInfo.dob, oldInfantInfo.gender];
+                console.log(`  [항목 ${entryIndex}] -> 결과 추가 시도 (동반 유아 - 구 형식):`, finalInfantData);
+                results.push(finalInfantData);
+            }
+
+            if (isNewFormatInfant) { console.log(`  [항목 ${entryIndex}] 신 형식 유아 항목으로 식별됨 (Prefix: ${prefix}).`); }
+
+            console.log(`  [항목 ${entryIndex}] processPassengerData 종료.`);
+        }
+
+        // 이름 분리 함수 (변경 없음)
         function extractNameParts(data) {
             const slashIndex = data.indexOf('/');
-            if (slashIndex === -1) {
-                return null; // 슬래시 없으면 null 반환
-            }
+            if (slashIndex === -1) { return null; }
             const lastName = data.substring(0, slashIndex).trim();
             const nameAndTitlePart = data.substring(slashIndex + 1).trim();
             return { lastName, nameAndTitlePart };
         }
 
-        // [신규] DOB 추출 및 부가 정보 제거 함수
+        // DOB/코드 제거 함수 (변경 없음)
         function extractDobAndClean(nameAndTitlePart) {
             let dob = '';
-            let cleanedPart = nameAndTitlePart.replace(/\s+/g, ' ').trim(); // 중간 정제 포함
-
+            let cleanedPart = nameAndTitlePart.replace(/\s+/g, ' ').trim();
             const chdStartIndex = cleanedPart.indexOf(CHD_MARKER);
             if (chdStartIndex !== -1) {
                 const dateStartIndex = chdStartIndex + CHD_MARKER.length;
@@ -720,27 +374,30 @@
                 if (cleanedPart.length >= dateEndIndex + 1 && cleanedPart.charAt(dateEndIndex) === ')') {
                     const dateString = cleanedPart.substring(dateStartIndex, dateEndIndex);
                     if (DATE_FORMAT_REGEX.test(dateString)) {
-                        dob = convertDate(dateString); // monthMap 제거
-                        cleanedPart = cleanedPart.substring(0, chdStartIndex).trim();
+                        dob = convertDate(dateString);
+                        cleanedPart = (cleanedPart.substring(0, chdStartIndex) + cleanedPart.substring(dateEndIndex + 1)).trim();
+                        console.log(`    [extractDobAndClean] CHD DOB '${dateString}' 발견 및 제거.`);
                     } else {
-                        const closingParenIndex = cleanedPart.indexOf(')', chdStartIndex);
-                        if (closingParenIndex > chdStartIndex) {
+                         const closingParenIndex = cleanedPart.indexOf(')', chdStartIndex);
+                         if (closingParenIndex > chdStartIndex) {
                             cleanedPart = (cleanedPart.substring(0, chdStartIndex) + cleanedPart.substring(closingParenIndex + 1)).trim();
-                        }
+                             console.warn(`    [extractDobAndClean] 유효하지 않은 CHD 날짜 '${dateString}'. (CHD...) 부분 제거.`);
+                         }
                     }
                 }
-            } else {
-                const ageCodeMatch = cleanedPart.match(AGE_CODE_REGEX);
-                if (ageCodeMatch) {
-                    cleanedPart = cleanedPart.replace(AGE_CODE_REGEX, '').trim();
-                }
             }
-            return { cleanedPart, dob };
+            const ageCodeMatch = cleanedPart.match(AGE_CODE_REGEX);
+            if (ageCodeMatch) {
+                const matchedCode = ageCodeMatch[0];
+                cleanedPart = cleanedPart.replace(AGE_CODE_REGEX, '').trim();
+                console.log(`    [extractDobAndClean] 연령 코드 '${matchedCode}' 발견 및 제거.`);
+            }
+            return { cleanedPart: cleanedPart.replace(/\s+/g, ' ').trim(), dob };
         }
 
-        // [신규] Title 및 최종 이름 추출 함수
+        // 타이틀/이름 추출 함수 (변경 없음)
         function extractTitleAndName(cleanedPart) {
-            let firstName = cleanedPart; // 기본값은 전체
+            let firstName = cleanedPart;
             let title = '';
             for (const t of POTENTIAL_TITLES) {
                 const regex = new RegExp(`\\s(${t})$`, 'i');
@@ -751,224 +408,36 @@
                     break;
                 }
             }
+            if (!title && firstName.includes(' ')) {
+                 const parts = firstName.split(' ');
+                 const lastWord = parts[parts.length - 1].toUpperCase();
+                 if (POTENTIAL_TITLES.includes(lastWord)) {
+                     title = lastWord;
+                     firstName = parts.slice(0, -1).join(' ');
+                 }
+             }
             return { firstName, title };
         }
 
+        // --- 마우스 이벤트 핸들러들 (변경 없음) ---
+        function handleMouseDown(event) { const targetCell = event.target; if (targetCell.tagName === 'TD' && !targetCell.hasAttribute('colspan')) { isSelecting = true; startCell = targetCell; clearSelectionHighlights(); targetCell.classList.add('selected-cell'); document.body.classList.add('is-selecting'); copySelectionButton.disabled = true; selectionBounds = null; } }
+        function handleMouseOver(event) { if (!isSelecting || !startCell) return; const currentCell = event.target; if (currentCell.tagName === 'TD' && !currentCell.hasAttribute('colspan')) { highlightCells(startCell, currentCell); } }
+        function handleMouseUp(event) { if (isSelecting) { isSelecting = false; document.body.classList.remove('is-selecting'); let endCell = startCell; const elementAtMouseUp = document.elementFromPoint(event.clientX, event.clientY); if (elementAtMouseUp && elementAtMouseUp.tagName === 'TD' && outputTableBody.contains(elementAtMouseUp) && !elementAtMouseUp.hasAttribute('colspan')) { endCell = elementAtMouseUp; } else if (event.target.tagName === 'TD' && outputTableBody.contains(event.target) && !event.target.hasAttribute('colspan')) { endCell = event.target; } if (startCell && endCell) { selectionBounds = calculateBounds(startCell, endCell); copySelectionButton.disabled = !selectionBounds; if (!copySelectionButton.disabled) { copySelectionButton.classList.add('pulse-animation'); setTimeout(() => { copySelectionButton.classList.remove('pulse-animation'); }, 2000); } } else { selectionBounds = null; copySelectionButton.disabled = true; } } }
+        function clearSelectionHighlights() { outputTableBody.querySelectorAll('.selected-cell').forEach(cell => cell.classList.remove('selected-cell')); }
+        function calculateBounds(startTd, endTd){ const startRowIndex = startTd.parentNode.rowIndex; const startColIndex = startTd.cellIndex; const endRowIndex = endTd.parentNode.rowIndex; const endColIndex = endTd.cellIndex; return { minRow: Math.min(startRowIndex, endRowIndex), maxRow: Math.max(startRowIndex, endRowIndex), minCol: Math.min(startColIndex, endColIndex), maxCol: Math.max(startColIndex, endColIndex) }; }
+        function highlightCells(startTd, endTd) { clearSelectionHighlights(); const bounds = calculateBounds(startTd, endTd); const rows = outputTable.rows; const headerRowCount = outputTable.tHead ? outputTable.tHead.rows.length : 0; for (let i = bounds.minRow; i <= bounds.maxRow; i++) { if (i >= headerRowCount && rows[i] && rows[i].parentNode.tagName === 'TBODY') { const cells = rows[i].cells; for (let j = bounds.minCol; j <= bounds.maxCol; j++) { if (cells[j]) { cells[j].classList.add('selected-cell'); } } } } }
 
-        // --- 마우스 이벤트 핸들러들 ---
-        function handleMouseDown(event) { 
-            const targetCell = event.target; 
-            if (targetCell.tagName === 'TD' && !targetCell.hasAttribute('colspan')) { 
-                isSelecting = true; 
-                startCell = targetCell; 
-                clearSelectionHighlights(); 
-                targetCell.classList.add('selected-cell'); 
-                document.body.classList.add('is-selecting'); 
-                copySelectionButton.disabled = true; 
-                selectionBounds = null; 
-            } 
-        }
-        
-        function handleMouseOver(event) { 
-            if (!isSelecting || !startCell) return; 
-            const currentCell = event.target; 
-            if (currentCell.tagName === 'TD' && !currentCell.hasAttribute('colspan')) { 
-                highlightCells(startCell, currentCell); 
-            } 
-        }
-        
-        function handleMouseUp(event) { 
-            if (isSelecting) { 
-                isSelecting = false; 
-                document.body.classList.remove('is-selecting'); 
-                const tableBodyRect = outputTableBody.getBoundingClientRect(); 
-                const mouseX = event.clientX; 
-                const mouseY = event.clientY; 
-                let endCell = startCell; 
-                if (mouseX >= tableBodyRect.left && mouseX <= tableBodyRect.right && mouseY >= tableBodyRect.top && mouseY <= tableBodyRect.bottom && event.target.tagName === 'TD') { 
-                    endCell = event.target; 
-                } 
-                if (startCell && endCell && endCell.tagName === 'TD' && !endCell.hasAttribute('colspan')) { 
-                    selectionBounds = calculateBounds(startCell, endCell); 
-                    copySelectionButton.disabled = !selectionBounds; 
-                    if (!copySelectionButton.disabled) {
-                        copySelectionButton.classList.add('pulse-animation');
-                        setTimeout(() => {
-                            copySelectionButton.classList.remove('pulse-animation');
-                        }, 2000);
-                    }
-                } else { 
-                    selectionBounds = null; 
-                    copySelectionButton.disabled = true; 
-                } 
-            } 
-        }
-        
-        function clearSelectionHighlights() { 
-            const selectedCells = outputTableBody.querySelectorAll('.selected-cell'); 
-            selectedCells.forEach(cell => cell.classList.remove('selected-cell')); 
-        }
-        
-        function calculateBounds(startTd, endTd){ 
-            const startRowIndex = startTd.parentNode.rowIndex; 
-            const startColIndex = startTd.cellIndex; 
-            const endRowIndex = endTd.parentNode.rowIndex; 
-            const endColIndex = endTd.cellIndex; 
-            return { 
-                minRow: Math.min(startRowIndex, endRowIndex), 
-                maxRow: Math.max(startRowIndex, endRowIndex), 
-                minCol: Math.min(startColIndex, endColIndex), 
-                maxCol: Math.max(startColIndex, endColIndex) 
-            }; 
-        }
-        
-        function highlightCells(startTd, endTd) { 
-            clearSelectionHighlights(); 
-            const bounds = calculateBounds(startTd, endTd); 
-            const rows = outputTable.rows; 
-            const headerRowCount = outputTable.tHead ? outputTable.tHead.rows.length : 0; 
-            for (let i = bounds.minRow; i <= bounds.maxRow; i++) { 
-                if (i >= headerRowCount && rows[i] && rows[i].parentNode.tagName === 'TBODY') { 
-                    const cells = rows[i].cells; 
-                    for (let j = bounds.minCol; j <= bounds.maxCol; j++) { 
-                        if (cells[j]) { 
-                            cells[j].classList.add('selected-cell'); 
-                        } 
-                    } 
-                } 
-            } 
-        }
+        // --- 복사 관련 함수 (변경 없음) ---
+        function getSelectedDataAsTsv(bounds) { if (!bounds) return null; const selectedRowsTexts = []; const rows = outputTable.rows; const headerRowCount = outputTable.tHead ? outputTable.tHead.rows.length : 0; for (let i = bounds.minRow; i <= bounds.maxRow; i++) { if (i < headerRowCount || !rows[i] || rows[i].parentNode.tagName !== 'TBODY') continue; const currentRowTexts = []; const cells = rows[i].cells; for (let j = bounds.minCol; j <= bounds.maxCol; j++) { currentRowTexts.push(cells[j] ? cells[j].textContent : ""); } selectedRowsTexts.push(currentRowTexts); } if (selectedRowsTexts.length === 0) return null; return selectedRowsTexts.map(rowArray => rowArray.join('\t')).join('\n'); }
+        function handleNativeCopy(event) { if (selectionBounds && (outputTable.contains(document.activeElement) || outputTable.contains(startCell))) { const tsvData = getSelectedDataAsTsv(selectionBounds); if (tsvData && event.clipboardData) { event.preventDefault(); event.clipboardData.setData('text/plain', tsvData); showCopyFeedback('✓ 선택 영역 복사 완료! (Ctrl+C)'); } else if (tsvData) { console.warn("clipboardData API 사용 불가"); } } }
+        function handleSelectionCopy() { if (!selectionBounds) { alert("복사할 영역이 선택되지 않았습니다."); return; } const tsvData = getSelectedDataAsTsv(selectionBounds); if (!tsvData){ alert("선택된 영역에 복사할 데이터가 없습니다."); return; } if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(tsvData).then(() => { showCopyFeedback('✓ 선택 영역 복사 완료!'); }).catch(err => { console.error('선택 영역 복사 실패:', err); alert('선택 영역 복사에 실패했습니다.'); copyFeedback.textContent = ''; }); } else { try { const textArea = document.createElement("textarea"); textArea.value = tsvData; textArea.style.position = "fixed"; textArea.style.left = "-9999px"; document.body.appendChild(textArea); textArea.focus(); textArea.select(); const successful = document.execCommand('copy'); document.body.removeChild(textArea); if (successful) { showCopyFeedback('✓ 선택 영역 복사 완료! (Fallback)'); } else { throw new Error('execCommand failed'); } } catch (err) { console.error('Fallback 복사 실패:', err); alert('클립보드 복사 기능 미지원 또는 실패.'); copyFeedback.textContent = ''; } } }
+        function handleTableCopy() { if (!currentResults || currentResults.length === 0) { alert('복사할 데이터가 없습니다.'); return; } const header = "#\t영문 성\t영문 이름\t생년월일\t성별"; const rows = currentResults.map((rowArray, index) => (index + 1) + '\t' + (rowArray || []).join('\t')); const tsvData = header + '\n' + rows.join('\n'); if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(tsvData).then(() => { showCopyFeedback('✓ 전체 결과 복사 완료!'); }).catch(err => { console.error('클립보드 복사 실패:', err); alert('클립보드 복사에 실패했습니다.'); copyFeedback.textContent = ''; }); } else { try { const textArea = document.createElement("textarea"); textArea.value = tsvData; textArea.style.position = "fixed"; textArea.style.left = "-9999px"; document.body.appendChild(textArea); textArea.focus(); textArea.select(); const successful = document.execCommand('copy'); document.body.removeChild(textArea); if (successful) { showCopyFeedback('✓ 전체 결과 복사 완료! (Fallback)'); } else { throw new Error('execCommand failed'); } } catch (err) { console.error('Fallback 전체 복사 실패:', err); alert('클립보드 복사 기능 미지원 또는 실패.'); copyFeedback.textContent = ''; } } }
+        function showCopyFeedback(message) { copyFeedback.textContent = message; copyFeedback.classList.add('active'); if (copyFeedback.timerId) { clearTimeout(copyFeedback.timerId); } copyFeedback.timerId = setTimeout(() => { copyFeedback.classList.remove('active'); copyFeedback.timerId = null; }, 2000); }
 
-        // --- 복사 관련 함수 ---
-        function getSelectedDataAsTsv(bounds) { 
-            if (!bounds) return null; 
-            const selectedRowsTexts = []; 
-            const rows = outputTable.rows; 
-            const headerRowCount = outputTable.tHead ? outputTable.tHead.rows.length : 0; 
-            for (let i = bounds.minRow; i <= bounds.maxRow; i++) { 
-                if (i < headerRowCount || !rows[i] || rows[i].parentNode.tagName !== 'TBODY') continue; 
-                const currentRowTexts = []; 
-                const cells = rows[i].cells; 
-                for (let j = bounds.minCol; j <= bounds.maxCol; j++) { 
-                    if (cells[j]) { 
-                        currentRowTexts.push(cells[j].textContent); 
-                    } else { 
-                        currentRowTexts.push(""); 
-                    } 
-                } 
-                selectedRowsTexts.push(currentRowTexts); 
-            } 
-            if (selectedRowsTexts.length === 0) return null; 
-            const tsvRows = selectedRowsTexts.map(rowArray => rowArray.join('\t')); 
-            return tsvRows.join('\n'); 
-        }
-        
-        function handleNativeCopy(event) { 
-            if (selectionBounds) { 
-                const tsvData = getSelectedDataAsTsv(selectionBounds); 
-                if (tsvData && event.clipboardData) { 
-                    event.preventDefault(); 
-                    event.clipboardData.setData('text/plain', tsvData); 
-                    showCopyFeedback('✓ 선택 영역 복사 완료! (Ctrl+C)');
-                } else if (tsvData) { 
-                    console.warn("clipboardData API 사용 불가"); 
-                } 
-            } 
-        }
-        
-        function handleSelectionCopy() { 
-            if (!selectionBounds) { 
-                alert("복사할 영역이 선택되지 않았습니다."); 
-                return; 
-            } 
-            const tsvData = getSelectedDataAsTsv(selectionBounds); 
-            if (!tsvData){ 
-                alert("선택된 영역에 복사할 데이터가 없습니다."); 
-                return; 
-            } 
-            if (navigator.clipboard && navigator.clipboard.writeText) { 
-                navigator.clipboard.writeText(tsvData).then(() => { 
-                    showCopyFeedback('✓ 선택 영역 복사 완료!');
-                }).catch(err => { 
-                    console.error('선택 영역 복사 실패:', err); 
-                    alert('선택 영역 복사에 실패했습니다.'); 
-                    copyFeedback.textContent = ''; 
-                }); 
-            } else { 
-                alert('클립보드 복사 기능이 지원되지 않는 브라우저입니다.'); 
-                copyFeedback.textContent = ''; 
-            } 
-        }
-        
-        function handleTableCopy() { 
-            if (!currentResults || currentResults.length === 0) { 
-                alert('복사할 데이터가 없습니다.'); 
-                return; 
-            } 
-            const header = "\t영문 성\t영문 이름\t생년월일\t성별"; 
-            const rows = currentResults.map((rowArray, index) => { 
-                return (index + 1) + '\t' + rowArray.join('\t'); 
-            }); 
-            const tsvData = header + '\n' + rows.join('\n'); 
-            if (navigator.clipboard && navigator.clipboard.writeText) { 
-                navigator.clipboard.writeText(tsvData).then(() => { 
-                    showCopyFeedback('✓ 전체 복사 완료!');
-                }).catch(err => { 
-                    console.error('클립보드 복사 실패:', err); 
-                    alert('클립보드 복사에 실패했습니다.'); 
-                    copyFeedback.textContent = ''; 
-                }); 
-            } else { 
-                alert('클립보드 복사 기능이 지원되지 않는 브라우저입니다.'); 
-                copyFeedback.textContent = ''; 
-            } 
-        }
+        // --- 헬퍼 함수 (변경 없음) ---
+        function getGender(title) { if (!title) return ''; const upperTitle = title.toUpperCase(); if (upperTitle === 'MS' || upperTitle === 'MISS') return '여'; else if (upperTitle === 'MR' || upperTitle === 'MSTR') return '남'; else return ''; }
+        function convertDate(dateString) { if (!dateString || typeof dateString !== 'string' || dateString.length !== 7) return ''; const day = dateString.substring(0, 2); const monthAbbr = dateString.substring(2, 5).toUpperCase(); const yearSuffix = parseInt(dateString.substring(5, 7), 10); const month = MONTH_MAP[monthAbbr]; if (!month) return ''; const currentYear = new Date().getFullYear(); const century = Math.floor(currentYear / 100); const currentYearSuffix = currentYear % 100; const calculatedYear = (yearSuffix > currentYearSuffix) ? (century - 1) * 100 + yearSuffix : century * 100 + yearSuffix; const year = (calculatedYear > currentYear) ? calculatedYear - 100 : calculatedYear; const tempDate = new Date(Date.UTC(year, parseInt(month, 10) - 1, parseInt(day, 10))); if (tempDate.getUTCFullYear() !== year || tempDate.getUTCMonth() !== (parseInt(month, 10) - 1) || tempDate.getUTCDate() !== parseInt(day, 10)) { console.warn(`[convertDate] 유효하지 않은 날짜 생성 시도: ${dateString}`); return ''; } return `${year}${month}${day}`; }
 
-        // 복사 피드백 표시 함수
-        function showCopyFeedback(message) {
-            copyFeedback.textContent = message;
-            copyFeedback.classList.add('active');
-            setTimeout(() => {
-                copyFeedback.classList.remove('active');
-            }, 2000);
-        }
-
-        // --- 헬퍼 함수 ---
-        function getGender(title) { 
-            if (!title) return ''; 
-            const upperTitle = title.toUpperCase(); 
-            if (upperTitle === 'MS' || upperTitle === 'MISS') return '여'; 
-            else if (upperTitle === 'MR' || upperTitle === 'MSTR') return '남'; 
-            else return ''; 
-        }
-        
-        function convertDate(dateString) { 
-            if (!dateString || dateString.length !== 7) return ''; 
-            const day = dateString.substring(0, 2); 
-            const monthAbbr = dateString.substring(2, 5).toUpperCase(); 
-            const yearSuffix = parseInt(dateString.substring(5, 7), 10); 
-            const month = MONTH_MAP[monthAbbr]; 
-            if (!month) return ''; 
-            const currentYear = new Date().getFullYear(); 
-            const century = Math.floor(currentYear / 100); 
-            const currentYearSuffix = currentYear % 100; 
-            const year = (yearSuffix > currentYearSuffix) ? (century - 1) * 100 + yearSuffix : century * 100 + yearSuffix; 
-            const tempDate = new Date(year, parseInt(month, 10) - 1, parseInt(day, 10)); 
-            if (tempDate.getFullYear() !== year || tempDate.getMonth() !== (parseInt(month, 10) - 1) || tempDate.getDate() !== parseInt(day, 10)) { 
-                return ''; 
-            } 
-            return `${year}${month}${day}`; 
-        }
-
-        // 페이지 로딩 시 입력란에 포커스
-        window.addEventListener('load', function() {
-            pnrInput.focus();
-            
-            // 처리하기 버튼에 강조 효과
-            setTimeout(() => {
-                parseButton.classList.add('pulse-animation');
-            }, 1000);
-        });
     </script>
 </body>
 </html>
